@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Demo of Usage</title>
+    <script type="text/javascript" src="src/uri-template.js"></script>
+</head>
+<body>
+    <div id="id"></div>
+<script type="text/javascript">
+    (function () {
+        "use strict";
+        var
+            templateText = "{?query*}",
+            variables = {
+                query: {
+                    firstParam: "firstValue",
+                    secondParam: "secondValue"
+                }
+            };
+        document.getElementById('id').innerHTML =
+                "<p>When you have a template of the form</p><p><code>var templateText = \"" + templateText
+                + "\";</code></p><p>and params of the form </p><p><code>var variables = " + JSON.stringify(variables)
+                + ";</code></p><p>, you can use </p><p><code>UriTemplate.parse(templateText).expand(variables); </code></p><p>to produce </p><p><code>"
+                + UriTemplate.parse(templateText).expand(variables)
+                + "</code></p><p> Look at the source code of this page!</p>";
+    }());
+</script>
+
+</body>
+</html>
