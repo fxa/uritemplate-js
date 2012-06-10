@@ -12,15 +12,16 @@ It exposes a constructor function UriTemplate with the two methods:
 Requirements
 ------------
 
-You can use uri-template.js in any modern browsers (Tested even with IE8 in IE7-Mode), see file demo.html.
+You can use uritemplate.js in any modern browsers (Tested even with IE8 in IE7-Mode), see file demo.html.
 But you can also use it with node:
 
+    npm install git://www.github.com/fxa/uritemplate-js.git
+
     var
-        UriTemplate = require('./path/to/uritemplate.js'),
-        template,
-        expanded;
+        UriTemplate = require('uritemplate'),
+        template;
     template = UriTemplate.parse('{?query*}';
-    template.expand({query: {firstParam: "firstValue", secondParam: "secondValue"}});
+    template.expand({query: {first: 1, second: 2}});
     --> "?firstParam=firstValue&secondParam=secondValue"
 
 Tests
@@ -34,7 +35,6 @@ Run the tests with
 Comming soon
 ------------
 
-* npm support with package.json
 * npm support for npm install
 * A new method extract(uri), which tries to extract the variables from a given uri
 

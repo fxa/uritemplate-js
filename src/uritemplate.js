@@ -1,7 +1,6 @@
 /*jshint browser:true, bitwise:true, curly:true, devel: true, eqeqeq:true, forin:true, immed:true, latedef:true, newcap:true, noarg:true, nonew:true, undef:true */
 /*global module */
 
-
 (function (exportCallback) {
     "use strict";
 
@@ -65,8 +64,8 @@
             }
             return false;
         }
-        if (typeof object === "string") {
-            // the empty string is considered as defined
+        if (typeof object === "string" || typeof object === "number" || typeof object === "boolean") {
+            // even the empty string is considered as defined
             return true;
         }
         for (propertyName in object) {

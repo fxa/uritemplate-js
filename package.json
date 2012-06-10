@@ -1,0 +1,12 @@
+{
+  "name" : "uritemplate",
+  "description" : "An UriTemplate implementation of rfc 6570",
+  "homepage" : "https://www.github.com/fxa/uritemplate-js",
+  "keywords" : ["util", "uri", "template", "rfc6570"],
+  "author" : "Franz Antesberger",
+  "contributors" : [],
+  "dependencies" : [],
+  "repository" : {"type": "git", "url": "git://github.com/fxa/uritemplate-js.git"},
+  "main" : "src/uritemplate.js",
+  "version" : "0.1.0"
+}
