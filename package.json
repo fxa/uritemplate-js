@@ -6,7 +6,7 @@
   "author" : "Franz Antesberger",
   "contributors" : [],
   "dependencies" : [],
-  "repository" : {"type": "git", "url": "git://github.com/fxa/uritemplate-js.git"},
+  "repository" : {"type": "git", "url": "https://github.com/fxa/uritemplate-js.git"},
   "main" : "src/uritemplate.js",
   "version" : "0.1.0"
 }

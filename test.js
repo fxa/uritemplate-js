@@ -5,7 +5,7 @@
     var
         assert = require('assert'),
         fs = require('fs'),
-        UriTemplate = require('./src/uri-template.js'),
+        UriTemplate = require('./src/uritemplate.js'),
         numTestsPassed = 0;
 
     function assertMatches(template, variables, expected, chapterName) {

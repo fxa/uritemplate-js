@@ -131,6 +131,9 @@
             result = '',
             index,
             chr;
+        if (typeof text === "number" || typeof text === "boolean") {
+            text = text.toString();
+        }
         for (index = 0; index < text.length; index += 1) {
             chr = text.charAt(index);
             if (chr === '%') {
@@ -267,11 +270,6 @@
     VariableExpression.prototype.toString = function () {
         return this.templateText;
     };
-
-    // makes numbers an booleans to strings (Date will follow...)
-    function normalizeValue(value) {
-        return (typeof value === 'number' || typeof value === 'boolean') ? value.toString() : value;
-    }
     
     VariableExpression.prototype.expand = function expandExpression(variables) {
         var
@@ -292,7 +290,7 @@
                 if (!valueIsArr) {
                     result += operator.encode(currentKey) + ',';
                 }
-                result += operator.encode(normalizeValue(currentValue));
+                result += operator.encode(currentValue);
             }
             return result;
         }
@@ -303,7 +301,7 @@
                     result += operator.separator();
                 }
                 result += (valueIsArr) ? operator.encode(varspec.varname) : operator.encode(currentKey);
-                result += '=' + operator.encode(normalizeValue(currentValue));
+                result += '=' + operator.encode(currentValue);
             }
             return result;
         }
@@ -316,7 +314,7 @@
                 if (!valueIsArr) {
                     result += operator.encode(currentKey) + '=';
                 }
-                result += operator.encode(normalizeValue(currentValue));
+                result += operator.encode(currentValue);
             }
             return result;
         }
@@ -324,7 +322,7 @@
         // expand each varspec and join with operator's separator
         for (index = 0; index < this.varspecs.length; index += 1) {
             varspec = this.varspecs[index];
-            value = normalizeValue(variables[varspec.varname]);
+            value = variables[varspec.varname];
             if (!isDefined(value)) {
                 continue;
             }
@@ -336,12 +334,12 @@
                 result += this.operator.separator();
             }
             valueIsArr = isArray(value);
-            if (typeof value === 'string') {
+            if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+                value = value.toString();
                 if (this.operator.named()) {
                     result += varspec.varname;
                     if (value === '') {
                         result += this.operator.ifEmpty();
-                        // "and skip to the next varspec" (appendix A of the rfc)
                         continue;
                     }
                     else {
@@ -362,7 +360,6 @@
                     result += varspec.varname;
                     if (!isDefined(value)) {
                         result += this.operator.ifEmpty();
-                        // "and skip to the next varspec" (appendix a of the rfc
                         continue;
                     }
                     else {
@@ -541,10 +538,10 @@
 }(function (UriTemplate) {
         "use strict";
         // export UriTemplate, when module is present, or pass it to window or global
-        if (typeof(module) !== "undefined") {
+        if (typeof module !== "undefined") {
             module.exports = UriTemplate;
         }
-        else if (typeof(window) !== "undefined") {
+        else if (typeof window !== "undefined") {
             window.UriTemplate = UriTemplate;
         }
         else {
