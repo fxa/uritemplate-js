@@ -15,7 +15,7 @@ Requirements
 You can use uritemplate.js in any modern browsers (Tested even with IE8 in IE7-Mode), see file demo.html.
 But you can also use it with node:
 
-    npm install git://www.github.com/fxa/uritemplate-js.git
+    npm install uritemplate
 
     var
         UriTemplate = require('uritemplate'),
@@ -35,7 +35,6 @@ Run the tests with
 Comming soon
 ------------
 
-* npm support for npm install
 * A new method extract(uri), which tries to extract the variables from a given uri
 
 License

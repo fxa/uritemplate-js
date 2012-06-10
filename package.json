@@ -6,7 +6,22 @@
   "author" : "Franz Antesberger",
   "contributors" : [],
   "dependencies" : [],
-  "repository" : {"type": "git", "url": "https://github.com/fxa/uritemplate-js.git"},
   "main" : "src/uritemplate.js",
-  "version" : "0.1.0"
+  "licenses": [{
+    "type": "MIT",
+    "url": "http://www.opensource.org/licenses/mit-license.php"
+  }],
+  "files": [
+    "src/uritemplate.js",
+    "demo.html",
+    "test.js",
+    "README.md",
+    ".gitmodules",
+    "uritemplate-test/extended-tests.json",
+    "uritemplate-test/negative-tests.json",
+    "uritemplate-test/README.md",
+    "uritemplate-test/spec-examples-by-sections.json",
+    "uritemplate-test/spec-examples.json"
+  ],
+  "version" : "0.1.1"
 }
