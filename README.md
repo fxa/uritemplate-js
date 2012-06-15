@@ -6,23 +6,25 @@ and can expand templates up to and including Level 4 in that specification.
 
 It exposes a constructor function UriTemplate with the two methods:
 
-* (static) parse(uriTemplateText)
-* expand(variables)
+* (static) parse(uriTemplateText) returning an instance of UriTemplate
+* expand(variables) returning an string
 
 Requirements
 ------------
 
-You can use uritemplate.js in any modern browsers (Tested even with IE8 in IE7-Mode), see file demo.html.
+You can use uritemplate.js in any even not so modern browser (Tested even with IE8 in IE7-Mode), see file demo.html.
 But you can also use it with node:
 
-    npm install uritemplate
+**npm install uritemplate**
+
+and then:
 
     var
         UriTemplate = require('uritemplate'),
         template;
     template = UriTemplate.parse('{?query*}';
     template.expand({query: {first: 1, second: 2}});
-    --> "?firstParam=firstValue&secondParam=secondValue"
+    --> "?first=1&second=2"
 
 Tests
 -----
@@ -36,6 +38,7 @@ Comming soon
 ------------
 
 * A new method extract(uri), which tries to extract the variables from a given uri
+* Support of javascript's Date class
 
 License
 -------

@@ -1,5 +1,3 @@
-/*jshint browser:true, bitwise:true, curly:true, devel: true, eqeqeq:true, forin:true, immed:true, latedef:true, newcap:true, noarg:true, nonew:true, undef:true */
-/*global module */
 
 (function (exportCallback) {
     "use strict";
@@ -36,7 +34,7 @@
     }
 
     function reduce(arrayOrObject, callback, initialValue) {
-        return (isArray(arrayOrObject)) ? arrayReduce(arrayOrObject, callback, initialValue) : objectReduce(arrayOrObject, callback, initialValue);
+        return isArray(arrayOrObject) ? arrayReduce(arrayOrObject, callback, initialValue) : objectReduce(arrayOrObject, callback, initialValue);
     }
 
     /**
@@ -68,11 +66,10 @@
             // even the empty string is considered as defined
             return true;
         }
+        // else Object
         for (propertyName in object) {
-            if (object.hasOwnProperty(propertyName)) {
-                if(isDefined(object[propertyName])) {
-                    return true;
-                }
+            if (object.hasOwnProperty(propertyName) && isDefined(object[propertyName])) {
+                return true;
             }
         }
         return false;
@@ -83,7 +80,7 @@
     }
 
     function isDigit(chr) {
-        return (chr >= '0' && chr <= '9');
+        return chr >= '0' && chr <= '9';
     }
 
     function isHexDigit(chr) {
@@ -141,73 +138,59 @@
                     // pass three chars to the result
                     result += text.substr(index, 3);
                     index += 2;
-                }else {
+                } else {
                     result += '%25';
                 }
             }
-            else if (isUnreserved(chr) || (passReserved && isReserved(chr))) {
-                result += chr;
-            }
             else {
-                result += pctEncode(chr);
+                result += isUnreserved(chr) || (passReserved && isReserved(chr)) ? chr : pctEncode(chr);
             }
         }
         return result;
     }
 
-    function encodePassReserved (text) {
+    function encodePassReserved(text) {
         return encode(text, true);
     }
 
-    function Operator(symbol, encode) {
-        this.symbol = symbol;
-        this.encode = encode;
-    }
-
-    Operator.prototype.separator = function () {
-        return (this.symbol === '?') ? '&' : (this.symbol === '' || this.symbol === '+' || this.symbol === '#') ? ',' : this.symbol;
-    };
-
-    Operator.prototype.named = function () {
-        return this.symbol === ';' || this.symbol === '&' || this.symbol === '?';
-    };
-
-    Operator.prototype.ifEmpty = function () {
-        return (this.symbol === '&' || this.symbol === '?') ? '=' : '';
-    };
-
-    Operator.prototype.first = function () {
-        return (this.symbol === '+' ) ? '' : this.symbol;
-    };
-
-    Operator.bySymbol = {
-        '': new Operator('', encode),
-        '+': new Operator('+', encodePassReserved),
-        '#': new Operator('#', encodePassReserved),
-        '.': new Operator('.', encode),
-        '/': new Operator('/', encode),
-        ';': new Operator(';', encode),
-        '?': new Operator('?', encode),
-        '&': new Operator('&', encode)
-    };
-
-    Operator.valueOf = function (chr) {
-        if (Operator.bySymbol[chr]) {
-            return Operator.bySymbol[chr];
-        }
-        if ("=,!@|".indexOf(chr) >= 0) {
-            throw new Error('Illegal use of reserved operator "' + chr + '"');
-        }
-        return Operator.bySymbol[''];
-    };
-
     var
-        UriTemplate;
+        operators = (function () {
+            var
+                bySymbol = {};
+            function create(symbol) {
+                bySymbol[symbol] = {
+                    symbol: symbol,
+                    separator: (symbol === '?') ? '&' : (symbol === '' || symbol === '+' || symbol === '#') ? ',' : symbol,
+                    named: symbol === ';' || symbol === '&' || symbol === '?',
+                    ifEmpty: (symbol === '&' || symbol === '?') ? '=' : '',
+                    first: (symbol === '+' ) ? '' : symbol,
+                    encode: (symbol === '+' || symbol === '#') ? encodePassReserved : encode,
+                    toString: function () {return this.symbol;}
+                };
+            }
+            create('');
+            create('+');
+            create('#');
+            create('.');
+            create('/');
+            create(';');
+            create('?');
+            create('&');
+            return {valueOf: function (chr) {
+                if (bySymbol[chr]) {
+                    return bySymbol[chr];
+                }
+                if ("=,!@|".indexOf(chr) >= 0) {
+                    throw new Error('Illegal use of reserved operator "' + chr + '"');
+                }
+                return bySymbol[''];
+            }}
+        }());
 
-    UriTemplate = function (templateText, expressions) {
+    function UriTemplate(templateText, expressions) {
         this.templateText = templateText;
         this.experssions = expressions;
-    };
+    }
 
     UriTemplate.prototype.toString = function () {
         return this.templateText;
@@ -240,12 +223,7 @@
                 }
             }
             else {
-                if (isReserved(chr) || isUnreserved(chr)) {
-                    result += chr;
-                }
-                else {
-                    result += pctEncode(chr);
-                }
+                result += isReserved(chr) || isUnreserved(chr) ? chr : pctEncode(chr);
             }
         }
         return result;
@@ -298,9 +276,9 @@
         function reduceNamedExploded(result, currentValue, currentKey) {
             if (isDefined(currentValue)) {
                 if (result.length > 0) {
-                    result += operator.separator();
+                    result += operator.separator;
                 }
-                result += (valueIsArr) ? operator.encode(varspec.varname) : operator.encode(currentKey);
+                result += (valueIsArr) ? encodeLiteral(varspec.varname) : operator.encode(currentKey);
                 result += '=' + operator.encode(currentValue);
             }
             return result;
@@ -309,7 +287,7 @@
         function reduceUnnamedExploded(result, currentValue, currentKey) {
             if (isDefined(currentValue)) {
                 if (result.length > 0) {
-                    result += operator.separator();
+                    result += operator.separator;
                 }
                 if (!valueIsArr) {
                     result += operator.encode(currentKey) + '=';
@@ -327,24 +305,22 @@
                 continue;
             }
             if (isFirstVarspec)  {
-                result += this.operator.first();
+                result += this.operator.first;
                 isFirstVarspec = false;
             }
             else {
-                result += this.operator.separator();
+                result += this.operator.separator;
             }
             valueIsArr = isArray(value);
             if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
                 value = value.toString();
-                if (this.operator.named()) {
-                    result += varspec.varname;
+                if (this.operator.named) {
+                    result += encodeLiteral(varspec.varname);
                     if (value === '') {
-                        result += this.operator.ifEmpty();
+                        result += this.operator.ifEmpty;
                         continue;
                     }
-                    else {
-                        result += '=';
-                    }
+                    result += '=';
                 }
                 if (varspec.maxLength && value.length > varspec.maxLength) {
                     value = value.substr(0, varspec.maxLength);
@@ -356,21 +332,19 @@
                 throw new Error('Prefix modifiers are not applicable to variables that have composite values. You tried to expand ' + this + " with " + JSON.stringify(value));
             }
             else if (!varspec.exploded) {
-                if (operator.named()) {
-                    result += varspec.varname;
+                if (operator.named) {
+                    result += encodeLiteral(varspec.varname);
                     if (!isDefined(value)) {
-                        result += this.operator.ifEmpty();
+                        result += this.operator.ifEmpty;
                         continue;
                     }
-                    else {
-                        result += '=';
-                    }
+                    result += '=';
                 }
                 result += reduce(value, reduceUnexploded, '');
             }
             else {
                 // exploded and not string
-                result += reduce(value, operator.named() ? reduceNamedExploded : reduceUnnamedExploded, '');
+                result += reduce(value, operator.named ? reduceNamedExploded : reduceUnnamedExploded, '');
             }
         }
         return result;
@@ -385,7 +359,7 @@
             varnameStart = null,
             maxLengthStart = null,
             index,
-            chr = ' ';
+            chr;
 
         function closeVarname() {
             varspec = {varname: text.substring(varnameStart, index), exploded: false, maxLength: null};
@@ -403,7 +377,7 @@
         for (index = 0; index < text.length; index += chr.length) {
             chr = text[index];
             if (index === 0) {
-                operator = Operator.valueOf(chr);
+                operator = operators.valueOf(chr);
                 if (operator.symbol !== '') {
                     // first char is operator symbol. so we can continue
                     varnameStart = 1;
@@ -486,7 +460,6 @@
             expressions = [],
             braceOpenIndex = null,
             literalStart = 0;
-
         for (index = 0; index < uriTemplateText.length; index += 1) {
             chr = uriTemplateText.charAt(index);
             if (literalStart !== null) {
@@ -549,4 +522,3 @@
         }
     }
 ));
-
