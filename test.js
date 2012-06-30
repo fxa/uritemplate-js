@@ -81,6 +81,8 @@
     runTestFile('uritemplate-test/spec-examples.json');
     runTestFile('uritemplate-test/extended-tests.json');
     runTestFile('uritemplate-test/negative-tests.json');
+    
+    runTestFile('own-testcases.json');
     console.log('passed all ' + numTestsPassed + ' tests!');
 
 }());

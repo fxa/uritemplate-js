@@ -1,0 +1,12 @@
+{
+    "Jira bug #1" : {
+        "comment": "tests, whether the '://' can be passed",
+        "level": 1,
+        "variables": {
+           "q": "val"
+        },
+        "testcases" : [
+           ["http://localhost:8080/api/search{?q}", "http://localhost:8080/api/search?q=val"]
+        ]
+    }
+}

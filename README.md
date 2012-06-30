@@ -26,6 +26,13 @@ and then:
     template.expand({query: {first: 1, second: 2}});
     --> "?first=1&second=2"
 
+If you want to clone the git project, be aware of the submodule uritemplate-test.
+So you have to to:
+
+    git https://github.com/fxa/uritemplate-js.git
+    git submodule init
+    git submodule update
+
 Tests
 -----
 
