@@ -524,6 +524,10 @@
         if (typeof module !== "undefined") {
             module.exports = UriTemplate;
         }
+        else if (typeof define === 'function' && define.amd) {
+            // AMD. Register as an anonymous module.
+            define(UriTemplate);
+        }
         else if (typeof window !== "undefined") {
             window.UriTemplate = UriTemplate;
         }
