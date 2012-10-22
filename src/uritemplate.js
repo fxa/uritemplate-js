@@ -523,6 +523,11 @@
         // export UriTemplate, when module is present, or pass it to window or global
         if (typeof module !== "undefined") {
             module.exports = UriTemplate;
+        } 
+        else if (typeof define !== "undefined") {
+            define([],function() {
+                return UriTemplate;
+            });
         }
         else if (typeof window !== "undefined") {
             window.UriTemplate = UriTemplate;
