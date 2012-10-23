@@ -1,4 +1,3 @@
-
 (function (exportCallback) {
     "use strict";
 
@@ -32,7 +31,8 @@
         }
         return currentValue;
     }
-    
+
+    // TODO remove
     function arrayAll(array, predicate) {
         var index;
         for (index = 0; index < array.length; index += 1) {
@@ -199,7 +199,7 @@
 
     function UriTemplate(templateText, expressions) {
         this.templateText = templateText;
-        this.experssions = expressions;
+        this.expressions = expressions;
     }
 
     UriTemplate.prototype.toString = function () {
@@ -210,8 +210,8 @@
         var
             index,
             result = '';
-        for (index = 0; index < this.experssions.length; index += 1) {
-            result += this.experssions[index].expand(variables);
+        for (index = 0; index < this.expressions.length; index += 1) {
+            result += this.expressions[index].expand(variables);
         }
         return result;
     };
@@ -483,10 +483,6 @@
                     literalStart = null;
                     braceOpenIndex = index;
                 }
-                // TODO if (chr === ';')
-                // In a regular URI a colon is only allowed as separator after a uri scheme (e.g. 'http:') and between host and port
-                // (e.g. 'example.com:443'). So the only slash allowed in front of a colon is the '//' after the scheme separator  
-                // throw new Error('":" not allowed after a "/" in a regular uri');
                 continue;
             }
 
