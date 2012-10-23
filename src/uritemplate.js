@@ -1,4 +1,3 @@
-
 (function (exportCallback) {
     "use strict";
 
@@ -199,7 +198,7 @@
 
     function UriTemplate(templateText, expressions) {
         this.templateText = templateText;
-        this.experssions = expressions;
+        this.expressions = expressions;
     }
 
     UriTemplate.prototype.toString = function () {
