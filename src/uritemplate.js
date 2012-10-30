@@ -1,6 +1,7 @@
 (function (exportCallback) {
     "use strict";
 
+    // http://blog.sangupta.com/2010/05/encodeuricomponent-and.html
     //
     // helpers
     //
@@ -32,17 +33,6 @@
         return currentValue;
     }
 
-    // TODO remove
-    function arrayAll(array, predicate) {
-        var index;
-        for (index = 0; index < array.length; index += 1) {
-            if (!predicate(array[index], index, array)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     function reduce(arrayOrObject, callback, initialValue) {
         return isArray(arrayOrObject) ? arrayReduce(arrayOrObject, callback, initialValue) : objectReduce(arrayOrObject, callback, initialValue);
     }
@@ -52,8 +42,8 @@
      * Section 2.3 of the RFC makes clear defintions:
      * * undefined and null are not defined.
      * * the empty string is defined
-     * * an array is defined, if it contains at least one defined element
-     * * an object is defined, if it contains at least one defined property
+     * * an array ("list") is defined, if it contains at least one defined element
+     * * an object ("map") is defined, if it contains at least one defined property
      * @param object
      * @return {Boolean}
      */
@@ -97,9 +87,58 @@
         return isDigit(chr) || (chr >= 'a' && chr <= 'f') || (chr >= 'A' && chr <= 'F');
     }
 
-    function isPctEncoded(chr) {
-        return chr.length === 3 && chr.charAt(0) === '%' && isHexDigit(chr.charAt(1) && isHexDigit(chr.charAt(2)));
-    }
+    var pctEncoder = (function () {
+
+        // see http://ecmanaut.blogspot.de/2006/07/encoding-decoding-utf8-in-javascript.html
+        function toUtf8 (s) {
+            return unescape(encodeURIComponent(s));
+        }
+
+        function encode(chr) {
+            var
+                result = '',
+                octets = toUtf8(chr),
+                octet,
+                index;
+            for (index = 0; index < octets.length; index += 1) {
+                octet = octets.charCodeAt(index);
+                result += '%' + octet.toString(16).toUpperCase();
+            }
+            return result;
+        }
+
+        function isPctEncoded (chr) {
+            if (chr.length < 3) {
+                return false;
+            }
+            for (var index = 0; index < chr.length; index += 3) {
+                if (chr.charAt(index) !== '%' || !isHexDigit(chr.charAt(index + 1) || !isHexDigit(chr.charAt(index + 2)))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function pctCharAt(text, startIndex) {
+            var chr = text.charAt(startIndex);
+            if (chr !== '%') {
+                return chr;
+            }
+            chr = text.substr(startIndex, 3);
+            if (!isPctEncoded(chr)) {
+                return '%';
+            }
+            return chr;
+        }
+
+        return {
+            encodeCharacter: encode,
+            decodeCharacter: decodeURIComponent,
+            isPctEncoded: isPctEncoded,
+            pctCharAt: pctCharAt
+        };
+    }());
+
 
     /**
      * Returns if an character is an varchar character according 2.3 of rfc 6570
@@ -107,7 +146,7 @@
      * @return (Boolean)
      */
     function isVarchar(chr) {
-        return isAlpha(chr) || isDigit(chr) || chr === '_' || isPctEncoded(chr);
+        return isAlpha(chr) || isDigit(chr) || chr === '_' || pctEncoder.isPctEncoded(chr);
     }
 
     /**
@@ -129,31 +168,21 @@
             chr === ')' || chr === '*' || chr === '+' || chr === ',' || chr === ';' || chr === '=' || chr === "'";
     }
 
-    function pctEncode(chr) {
-        return '%' + chr.charCodeAt(0).toString(16).toUpperCase();
-    }
-
     function encode(text, passReserved) {
         var
             result = '',
             index,
-            chr;
+            chr = '';
         if (typeof text === "number" || typeof text === "boolean") {
             text = text.toString();
         }
-        for (index = 0; index < text.length; index += 1) {
-            chr = text.charAt(index);
-            if (chr === '%') {
-                if (isHexDigit(text.charAt(index+1)) && isHexDigit(text.charAt(index+2))) {
-                    // pass three chars to the result
-                    result += text.substr(index, 3);
-                    index += 2;
-                } else {
-                    result += '%25';
-                }
+        for (index = 0; index < text.length; index += chr.length) {
+            chr = pctEncoder.pctCharAt(text, index);
+            if (chr.length > 1) {
+                result += chr;
             }
             else {
-                result += isUnreserved(chr) || (passReserved && isReserved(chr)) ? chr : pctEncode(chr);
+                result += isUnreserved(chr) || (passReserved && isReserved(chr)) ? chr : pctEncoder.encodeCharacter(chr);
             }
         }
         return result;
@@ -220,20 +249,14 @@
         var
             result = '',
             index,
-            chr;
-        for (index = 0; index < literal.length; index += 1) {
-            chr = literal.charAt(index);
-            if (chr === '%') {
-                if (isHexDigit(literal.charAt(index + 1)) && isHexDigit(literal.charAt(index + 2))) {
-                    result += literal.substr(index, 3);
-                    index += 2;
-                }
-                else {
-                    throw new Error('illegal % found at position ' + index);
-                }
+            chr = '';
+        for (index = 0; index < literal.length; index += chr.length) {
+            chr = pctEncoder.pctCharAt(literal, index);
+            if (chr.length > 0) {
+                result += chr;
             }
             else {
-                result += isReserved(chr) || isUnreserved(chr) ? chr : pctEncode(chr);
+                result += isReserved(chr) || isUnreserved(chr) ? chr : pctEncoder.encodeCharacter(chr);
             }
         }
         return result;
@@ -383,9 +406,11 @@
             varspec.maxLength = parseInt(text.substring(maxLengthStart, index), 10);
             maxLengthStart = null;
         }
+
+        // remove outer {}
         text = outerText.substr(1, outerText.length - 2);
         for (index = 0; index < text.length; index += chr.length) {
-            chr = text[index];
+            chr = pctEncoder.pctCharAt(text, index);
             if (index === 0) {
                 operator = operators.valueOf(chr);
                 if (operator.symbol !== '') {
@@ -397,13 +422,7 @@
                 varnameStart = 0;
             }
             if (varnameStart !== null) {
-                // Within varnames pct encoded values are allowed. looks strange to me.
-                if (chr === '%') {
-                    if (index > text.length - 2 || !isDigit(text[index + 1] || !isDigit(text[index + 2]))) {
-                        throw new Error('illegal char "%" at position ' + index);
-                    }
-                    chr += text[index + 1] + text[index + 2];
-                }
+
                 // the spec says: varname       =  varchar *( ["."] varchar )
                 // so a dot is allowed except for the first char
                 if (chr === '.') {
