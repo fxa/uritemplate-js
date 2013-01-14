@@ -1,27 +1,34 @@
 {
-  "name" : "uritemplate",
-  "description" : "An UriTemplate implementation of rfc 6570",
-  "homepage" : "https://www.github.com/fxa/uritemplate-js",
-  "keywords" : ["util", "uri", "template", "rfc6570"],
-  "author" : "Franz Antesberger",
-  "contributors" : [],
-  "dependencies" : [],
-  "main" : "src/uritemplate.js",
-  "licenses": [{
-    "type": "MIT",
-    "url": "http://www.opensource.org/licenses/mit-license.php"
-  }],
-  "files": [
-    "src/uritemplate.js",
-    "demo.html",
-    "test.js",
-    "README.md",
-    ".gitmodules",
-    "uritemplate-test/extended-tests.json",
-    "uritemplate-test/negative-tests.json",
-    "uritemplate-test/README.md",
-    "uritemplate-test/spec-examples-by-sections.json",
-    "uritemplate-test/spec-examples.json"
-  ],
-  "version" : "0.1.4"
+    "name": "uritemplate",
+    "description": "An UriTemplate implementation of rfc 6570",
+    "homepage": "https://www.github.com/fxa/uritemplate-js",
+    "keywords": ["util", "uri", "template", "rfc6570"],
+    "author": "Franz Antesberger",
+    "contributors": [],
+    "dependencies": [],
+    "main": "bin/uritemplate.js",
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "http://www.opensource.org/licenses/mit-license.php"
+        }
+    ],
+    "files": [
+        "src",
+        "test",
+        "bin",
+        "Jakefile.js",
+        "own-testcases.json",
+        "demo.html",
+        "demo_AMD.html",
+        "README.md",
+        "reqire.js",
+        ".gitmodules",
+        "uritemplate-test/extended-tests.json",
+        "uritemplate-test/negative-tests.json",
+        "uritemplate-test/README.md",
+        "uritemplate-test/spec-examples-by-sections.json",
+        "uritemplate-test/spec-examples.json"
+    ],
+    "version": "0.2.0"
 }

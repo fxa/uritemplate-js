@@ -22,7 +22,7 @@ and then:
     var
         UriTemplate = require('uritemplate'),
         template;
-    template = UriTemplate.parse('{?query*}');
+    template = UriTemplate.parse('{?query*})';
     template.expand({query: {first: 1, second: 2}});
     --> "?first=1&second=2"
 
@@ -33,22 +33,29 @@ So you have to to:
     git submodule init
     git submodule update
 
+Build
+-----
+jake clean release
+
 Tests
 -----
 
-The tests are taken from https://github.com/uri-templates/uritemplate-test as a submodule.
-Run the tests with
-
-    node test.js
-
-Comming soon
-------------
-
-* A new method extract(uri), which tries to extract the variables from a given uri
-* Support of javascript's Date class
+The integration tests are taken from https://github.com/uri-templates/uritemplate-test as a submodule.
+The tests are integrated in the Jakefile.
 
 License
 -------
-Copyright 2012 Franz Antesberger
+Copyright 2013 Franz Antesberger
 
 MIT License, see http://mit-license.org/
+
+Release Notes
+-------------
+0.2.0 heavy project refactoring, splitting source files, introducing jshint (preparation of next steps)
+
+Next Steps
+----------
+* Implementing unit tests (now only dummy test implemented)
+* Updating uritemplate-test (mnot added some new tests and removed some wrong. At the moment I cannot update, because the new tests will not pass)
+* A new method extract(uri), which tries to extract the variables from a given uri.
+  This is harder, than you might think
