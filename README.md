@@ -22,7 +22,7 @@ and then:
     var
         UriTemplate = require('uritemplate'),
         template;
-    template = UriTemplate.parse('{?query*}';
+    template = UriTemplate.parse('{?query*}');
     template.expand({query: {first: 1, second: 2}});
     --> "?first=1&second=2"
 
