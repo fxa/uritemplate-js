@@ -1,34 +1,47 @@
 {
-    "name": "uritemplate",
-    "description": "An UriTemplate implementation of rfc 6570",
-    "homepage": "https://www.github.com/fxa/uritemplate-js",
-    "keywords": ["util", "uri", "template", "rfc6570"],
-    "author": "Franz Antesberger",
-    "contributors": [],
-    "dependencies": [],
-    "main": "bin/uritemplate.js",
-    "licenses": [
-        {
-            "type": "MIT",
-            "url": "http://www.opensource.org/licenses/mit-license.php"
-        }
-    ],
-    "files": [
-        "src",
-        "test",
-        "bin",
-        "Jakefile.js",
-        "own-testcases.json",
-        "demo.html",
-        "demo_AMD.html",
-        "README.md",
-        "reqire.js",
-        ".gitmodules",
-        "uritemplate-test/extended-tests.json",
-        "uritemplate-test/negative-tests.json",
-        "uritemplate-test/README.md",
-        "uritemplate-test/spec-examples-by-sections.json",
-        "uritemplate-test/spec-examples.json"
-    ],
-    "version": "0.2.0"
+  "name": "uritemplate",
+  "description": "An UriTemplate implementation of rfc 6570",
+  "homepage": "https://www.github.com/fxa/uritemplate-js",
+  "keywords": [
+    "util",
+    "uri",
+    "template",
+    "rfc6570"
+  ],
+  "author": "Franz Antesberger",
+  "contributors": [],
+  "dependencies": {},
+  "main": "bin/uritemplate.js",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/mit-license.php"
+    }
+  ],
+  "files": [
+    "src",
+    "test",
+    "bin",
+    "Jakefile.js",
+    "own-testcases.json",
+    "demo.html",
+    "demo_AMD.html",
+    "README.md",
+    "reqire.js",
+    ".gitmodules",
+    "uritemplate-test/extended-tests.json",
+    "uritemplate-test/negative-tests.json",
+    "uritemplate-test/README.md",
+    "uritemplate-test/spec-examples-by-sections.json",
+    "uritemplate-test/spec-examples.json"
+  ],
+  "version": "0.2.1",
+  "readmeFilename": "README.md",
+  "gitHead": "901b85201a821427dfb4591b56aea3a70d45c67c",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fxa/uritemplate-js.git"
+  },
+  "license": "MIT"
 }

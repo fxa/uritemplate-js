@@ -52,6 +52,7 @@ MIT License, see http://mit-license.org/
 Release Notes
 -------------
 0.2.0 heavy project refactoring, splitting source files, introducing jshint (preparation of next steps)
+0.2.1 fixed a bug in package.json
 
 Next Steps
 ----------
