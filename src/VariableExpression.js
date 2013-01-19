@@ -71,7 +71,7 @@ var VariableExpression = (function () {
             varspec = this.varspecs[index];
             value = variables[varspec.varname];
             if (!isDefined(value)) {
-                continue;
+                 continue;
             }
             if (isFirstVarspec) {
                 result += this.operator.first;
