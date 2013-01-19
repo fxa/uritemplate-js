@@ -3,7 +3,16 @@ module.exports = (function () {
 
     var
         fs = require('fs'),
+        path = require('path'),
         sandbox = require('nodeunit').utils.sandbox;
+    // var testCase = require('nodeunit').testCase;
+
+    var NOISY = false;
+    function log(text) {
+        if (NOISY) {
+            console.log(text);
+        }
+    }
 
 
     function loadUriTemplate() {
@@ -23,18 +32,15 @@ module.exports = (function () {
             index;
         try {
             uriTemplate = UriTemplate.parse(template);
-            // console.log('uritemplate parsed:' + uriTemplate);
         }
         catch (error) {
-            // console.log('error', error);
-            // console.log('expected', expected.toString());
             // if expected === false, the error was expected!
             if (expected === false) {
+                log('ok. expected error found');
                 return;
             }
-            console.log('error', error);
-            console.log('expected', expected.toString());
-            test.notEqual('chapter ' + chapterName + ', template ' + template + ' threw error: ' + error);
+            log('error', error);
+            test.fail('chapter ' + chapterName + ', template ' + template + ' threw error: ' + error);
             return;
         }
         test.ok(!!uriTemplate, 'uri template could not be parsed');
@@ -49,7 +55,7 @@ module.exports = (function () {
             if (expected === false) {
                 return;
             }
-            test.notEqual('chapter ' + chapterName + ', template ' + template + ' threw error: ' + JSON.stringify(exception, null, 4));
+            test.fail('chapter ' + chapterName + ', template ' + template + ' threw error: ' + JSON.stringify(exception, null, 4));
             return;
         }
         if (expected.constructor === Array) {
@@ -59,7 +65,7 @@ module.exports = (function () {
                     return;
                 }
             }
-            test.notEqual('actual: ' + actual + ', expected: one of ' + JSON.stringify(expected) + 'chapter ' + chapterName + ', template ' + template);
+            test.fail("actual: '" + actual + "', expected: one of " + JSON.stringify(expected) + ', chapter ' + chapterName + ', template ' + template);
         }
         else {
             test.equal(actual, expected, 'actual: ' + actual + ', expected: ' + expected + ', template: ' + template);
@@ -76,33 +82,39 @@ module.exports = (function () {
             template,
             expexted,
             UriTemplate;
+        log(filename);
         UriTemplate = loadUriTemplate();
         tests = loadTestFile(filename);
         for (chapterName in tests) {
             if (tests.hasOwnProperty(chapterName)) {
+                log('-> ' + chapterName);
                 chapter = tests[chapterName];
                 variables = chapter.variables;
                 for (index = 0; index < chapter.testcases.length; index += 1) {
                     template = chapter.testcases[index][0];
                     expexted = chapter.testcases[index][1];
+                    log('   -> ' + template);
                     assertMatches(test, template, variables, expexted, chapterName, UriTemplate);
                 }
-                console.log(chapterName);
             }
         }
         test.done();
     }
 
+    // var SPEC_HOME = '../uritemplate-test';
+    var SPEC_HOME = 'uritemplate-test';
+    // var SPEC_HOME = "C:/Users/developer/git/uritemplate-test";
+
     return {
         'spec examples': function (test) {
-            runTestFile(test, 'uritemplate-test/spec-examples.json');
+            runTestFile(test, path.join(SPEC_HOME, 'spec-examples.json'));
         },
         'extended tests': function (test) {
-            runTestFile(test, 'uritemplate-test/extended-tests.json');
+            runTestFile(test, path.join(SPEC_HOME, 'extended-tests.json'));
         },
-        // 'negative tests': function (test) {
-        //     runTestFile(test, 'uritemplate-test/negative-tests.json');
-        // },
+        'negative tests': function (test) {
+            runTestFile(test, path.join(SPEC_HOME, 'negative-tests.json'));
+        },
         'own tests': function (test) {
             runTestFile(test, 'own-testcases.json');
         }

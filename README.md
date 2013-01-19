@@ -17,7 +17,7 @@ But you can also use it with node:
 
 **npm install uritemplate**
 
-and then:
+and then in a node application:
 
     var
         UriTemplate = require('uritemplate'),
@@ -25,6 +25,15 @@ and then:
     template = UriTemplate.parse('{?query*})';
     template.expand({query: {first: 1, second: 2}});
     --> "?first=1&second=2"
+
+or within a html document (see also demo.html):
+
+    <script type="text/javascript" src="bin/uritemplate.js"></script>
+    <script type="text/javascript">
+        var template = UriTemplate.parse('{?query*}');
+        alert(template.expand({query: {first: 1, second: 2}}));
+    </script>
+
 
 If you want to clone the git project, be aware of the submodule uritemplate-test.
 So you have to to:
@@ -35,7 +44,7 @@ So you have to to:
 
 Build
 -----
-jake clean release
+jake clean build
 
 Tests
 -----
@@ -51,8 +60,9 @@ MIT License, see http://mit-license.org/
 
 Release Notes
 -------------
-0.2.0 heavy project refactoring, splitting source files, introducing jshint (preparation of next steps)
-0.2.1 fixed a bug in package.json
+* 0.2.2 fixed pct encoding bug with multibyte utf8 chars
+* 0.2.1 fixed a bug in package.json
+* 0.2.0 heavy project refactoring, splitting source files, introducing jshint (preparation of next steps)
 
 Next Steps
 ----------

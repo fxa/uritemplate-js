@@ -24,7 +24,9 @@
             "bold_suffix": "",
             "assertion_prefix": "",
             "assertion_suffix": ""
-        };
+        },
+        NODEUNIT_REPORTER = 'default';
+        // NODEUNIT_REPORTER = 'minimal';
 
     var
         SRC_HOME = 'src',
@@ -58,7 +60,7 @@
         ASYNC = {async: true};
 
     var all = new jake.FileList();
-    all.include('./*');
+    all.include('./Jakefile.js', 'own-testcases.json');
     all.include('src/**');
     all.include('test/**');
     all.exclude(TARGET_COMPRESSED);
@@ -91,7 +93,7 @@
             },
             function (callback) {
                 jake.logger.log('unit testing ...');
-                nodeunit.reporters['default'].run(UNIT_TESTS, NODEUNIT_OPTIONS, callback);
+                nodeunit.reporters[NODEUNIT_REPORTER].run(UNIT_TESTS, NODEUNIT_OPTIONS, callback);
             },
             function (callback) {
                 jake.logger.log('build concatenated version ...');
@@ -107,7 +109,7 @@
             },
             function (callback) {
                 jake.logger.log('integration tests ...');
-                nodeunit.reporters['default'].run(INTEGRATION_TESTS, NODEUNIT_OPTIONS, callback);
+                nodeunit.reporters[NODEUNIT_REPORTER].run(INTEGRATION_TESTS, NODEUNIT_OPTIONS, callback);
             },
             function (callback) {
                 jake.logger.log('move uncompressed version to target directory');
@@ -126,7 +128,7 @@
             },
             function (callback) {
                 jake.logger.log('integration tests with minified version ... ');
-                nodeunit.reporters['default'].run(INTEGRATION_TESTS, NODEUNIT_OPTIONS, callback);
+                nodeunit.reporters[NODEUNIT_REPORTER].run(INTEGRATION_TESTS, NODEUNIT_OPTIONS, callback);
             },
             function (callback) {
                 jake.logger.log('move compressed version to target ... ');
@@ -135,8 +137,15 @@
         ], closeTask);
     }, ASYNC);
 
-    desc('release');
-    task('release', [TARGET_COMPRESSED], function () {
+    // for short test only
+    desc('unit tests');
+    task('unit', [], function () {
+        // here we want the default reporter and not the configured one
+        nodeunit.reporters['default'].run(UNIT_TESTS, NODEUNIT_OPTIONS, complete);
+    }, ASYNC);
+
+    desc('build');
+    task('build', [TARGET_COMPRESSED], function () {
         jake.logger.log('done.');
     });
     task('default', ['clean', 'release']);

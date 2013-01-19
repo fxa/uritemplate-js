@@ -1,15 +1,9 @@
 module.exports = (function () {
     "use strict";
 
-    var
-        sandbox = require('nodeunit').utils.sandbox;
-
-    var context = {};
-
-    sandbox('src/objectHelper.js', context);
-
+    var context = {console: console};
+    require('nodeunit').utils.sandbox('src/objectHelper.js', context);
     var objectHelper = context.objectHelper;
-
 
     return {
         'reduce works with initial value': function (test) {

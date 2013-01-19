@@ -12,7 +12,7 @@ var parse = (function () {
             varnameStart = null,
             maxLengthStart = null,
             index,
-            chr;
+            chr = '';
 
         function closeVarname() {
             varspec = {varname: text.substring(varnameStart, index), exploded: false, maxLength: null};
@@ -38,7 +38,7 @@ var parse = (function () {
         for (; index < text.length; index += chr.length) {
             chr = pctEncoder.pctCharAt(text, index);
             if (varnameStart !== null) {
-                // the spec says: varname       =  varchar *( ["."] varchar )
+                // the spec says: varname =  varchar *( ["."] varchar )
                 // so a dot is allowed except for the first char
                 if (chr === '.') {
                     if (varnameStart === index) {
@@ -84,7 +84,7 @@ var parse = (function () {
                 varnameStart = index + 1;
                 continue;
             }
-            throw new Error("illegal character '" + chr + "' at position " + index);
+            throw new Error("illegal character '" + chr + "' at position " + index + ' of "' + text + '"');
         } // for chr
         if (varnameStart !== null) {
             closeVarname();

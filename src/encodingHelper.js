@@ -1,9 +1,12 @@
 /*jshint unused: false */
 /*global rfcCharHelper, pctEncoder*/
+/**
+ * encoding of rfc 6570
+ */
 var encodingHelper = (function () {
     "use strict";
 
-    function encode(text, passReserved) {
+    function encode (text, passReserved) {
         var
             result = '',
             index,
@@ -23,7 +26,7 @@ var encodingHelper = (function () {
         return result;
     }
 
-    function encodePassReserved(text) {
+    function encodePassReserved (text) {
         return encode(text, true);
     }
 
