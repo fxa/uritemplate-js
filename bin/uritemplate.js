@@ -525,9 +525,9 @@ var VariableExpression = (function () {
         for (index = 0; index < this.varspecs.length; index += 1) {
             varspec = this.varspecs[index];
             value = variables[varspec.varname];
-            // if (!isDefined(value)) {
-            //     continue;
-            // }
+            if (!isDefined(value)) {
+                continue;
+            }
             if (isFirstVarspec) {
                 result += this.operator.first;
                 isFirstVarspec = false;
