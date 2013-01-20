@@ -116,11 +116,9 @@ module.exports = (function () {
         'extended tests': function (test) {
             runTestFile(test, path.join(SPEC_HOME, 'extended-tests.json'));
         },
-        /* negative tests have invalid specs in it -- they were fixed in a later version of  the test
         'negative tests': function (test) {
             runTestFile(test, path.join(SPEC_HOME, 'negative-tests.json'));
         },
-        */
         'own tests': function (test) {
             runTestFile(test, 'own-testcases.json');
         }

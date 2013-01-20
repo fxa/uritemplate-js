@@ -27,7 +27,6 @@ module.exports = (function () {
             test.done();
         },
         "empty lists with ? must show the name": function (test) {
-            console.log(JSON.stringify(test, null, 4));
             var ve = new VariableExpression("{?empty}", operators.valueOf('?'), [
                 {varname: 'empty', exploded: false, maxLength: null}
             ]);
@@ -35,7 +34,6 @@ module.exports = (function () {
             test.done();
         },
         "exploded empty lists with ? must not show the name": function (test) {
-            console.log(JSON.stringify(test, null, 4));
             var ve = new VariableExpression("{?empty*}", operators.valueOf('?'), [
                 {varname: 'empty', exploded: true, maxLength: null}
             ]);
