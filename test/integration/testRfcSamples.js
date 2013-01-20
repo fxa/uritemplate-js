@@ -59,6 +59,12 @@ module.exports = (function () {
             return;
         }
         if (expected.constructor === Array) {
+            // simplyfy arrays, when only one element is in
+            if (expected.length === 1) {
+                expected = expected[0];
+            }
+        }
+        if (expected.constructor === Array) {
             // actual must match at least one of the listed elements
             for (index = 0; index < expected.length; index += 1) {
                 if (actual === expected[index]) {

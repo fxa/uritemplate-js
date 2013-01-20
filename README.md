@@ -60,6 +60,7 @@ MIT License, see http://mit-license.org/
 
 Release Notes
 -------------
+* 0.2.3 fixed bug with empty objects ('{?empty}' with '{empty:{}}' shall expand to '?empty=')
 * 0.2.2 fixed pct encoding bug with multibyte utf8 chars
 * 0.2.1 fixed a bug in package.json
 * 0.2.0 heavy project refactoring, splitting source files, introducing jshint (preparation of next steps)

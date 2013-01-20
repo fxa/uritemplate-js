@@ -25,16 +25,22 @@ module.exports = (function () {
             test.equal(ve.expand({x: 1, y: 2}), '1,2');
             test.equal(ve.expand({x: 1, y: null}), '1');
             test.done();
-        }
-/* TODO this test fails
-        "exploded empty lists with ? must show the name": function (test) {
+        },
+        "empty lists with ? must show the name": function (test) {
+            console.log(JSON.stringify(test, null, 4));
+            var ve = new VariableExpression("{?empty}", operators.valueOf('?'), [
+                {varname: 'empty', exploded: false, maxLength: null}
+            ]);
+            test.equal(ve.expand({empty: {}}), '?empty=');
+            test.done();
+        },
+        "exploded empty lists with ? must not show the name": function (test) {
             console.log(JSON.stringify(test, null, 4));
             var ve = new VariableExpression("{?empty*}", operators.valueOf('?'), [
                 {varname: 'empty', exploded: true, maxLength: null}
             ]);
-            test.equal(ve.expand({empty: {}}), '?empty=');
+            test.equal(ve.expand({empty: {}}), '');
             test.done();
         }
-*/
     };
 }());

@@ -584,22 +584,22 @@ var VariableExpression = (function () {
             varspec = this.varspecs[index];
             value = variables[varspec.varname];
             if (!isDefined(value)) {
-                continue;
+                 continue;
             }
             if (isFirstVarspec) {
-                result += this.operator.first;
+                result += operator.first;
                 isFirstVarspec = false;
             }
             else {
-                result += this.operator.separator;
+                result += operator.separator;
             }
             valueIsArr = objectHelper.isArray(value);
             if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
                 value = value.toString();
-                if (this.operator.named) {
+                if (operator.named) {
                     result += LiteralExpression.encodeLiteral(varspec.varname);
                     if (value === '') {
-                        result += this.operator.ifEmpty;
+                        result += operator.ifEmpty;
                         continue;
                     }
                     result += '=';
@@ -607,7 +607,7 @@ var VariableExpression = (function () {
                 if (varspec.maxLength && value.length > varspec.maxLength) {
                     value = value.substr(0, varspec.maxLength);
                 }
-                result += this.operator.encode(value);
+                result += operator.encode(value);
             }
             else if (varspec.maxLength) {
                 // 2.4.1 of the spec says: "Prefix modifiers are not applicable to variables that have composite values."
@@ -617,7 +617,7 @@ var VariableExpression = (function () {
                 if (operator.named) {
                     result += LiteralExpression.encodeLiteral(varspec.varname);
                     if (!isDefined(value)) {
-                        result += this.operator.ifEmpty;
+                        result += operator.ifEmpty;
                         continue;
                     }
                     result += '=';
@@ -629,6 +629,22 @@ var VariableExpression = (function () {
                 result += objectHelper.reduce(value, operator.named ? reduceNamedExploded : reduceUnnamedExploded, '');
             }
         }
+
+        if (isFirstVarspec) {
+            // so no varspecs produced output.
+            var oneExploded = false;
+            for (index = 0; index < this.varspecs.length; index += 1) {
+                if (this.varspecs[index].exploded) {
+                    oneExploded = true;
+                    break;
+                }
+            }
+            if (operator.named && !oneExploded) {
+                result += operator.symbol;
+                result += varspec.varname + operator.ifEmpty;
+            }
+        }
+
         return result;
     };
 
