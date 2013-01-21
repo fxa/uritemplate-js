@@ -15,13 +15,8 @@ var encodingHelper = (function () {
             text = text.toString();
         }
         for (index = 0; index < text.length; index += chr.length) {
-            chr = pctEncoder.pctCharAt(text, index);
-            if (chr.length > 1) {
-                result += chr;
-            }
-            else {
-                result += rfcCharHelper.isUnreserved(chr) || (passReserved && rfcCharHelper.isReserved(chr)) ? chr : pctEncoder.encodeCharacter(chr);
-            }
+            chr = text.charAt(index);
+            result += rfcCharHelper.isUnreserved(chr) || (passReserved && rfcCharHelper.isReserved(chr)) ? chr : pctEncoder.encodeCharacter(chr);
         }
         return result;
     }
