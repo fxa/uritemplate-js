@@ -9,13 +9,8 @@ var LiteralExpression = (function () {
             index,
             chr = '';
         for (index = 0; index < literal.length; index += chr.length) {
-            chr = pctEncoder.pctCharAt(literal, index);
-            if (chr.length > 0) {
-                result += chr;
-            }
-            else {
-                result += rfcCharHelper.isReserved(chr) || rfcCharHelper.isUnreserved(chr) ? chr : pctEncoder.encodeCharacter(chr);
-            }
+            chr = literal.charAt(index);
+            result += rfcCharHelper.isReserved(chr) || rfcCharHelper.isUnreserved(chr) ? chr : pctEncoder.encodeCharacter(chr);
         }
         return result;
     }

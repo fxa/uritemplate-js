@@ -23,12 +23,13 @@ var rfcCharHelper = (function () {
 
     /**
      * Returns if chr is an reserved character according 1.5 of rfc 6570
+     * or the percent character mentioned in 3.2.1.
      * @param chr
      * @return {Boolean}
      */
     function isReserved(chr) {
         return chr === ':' || chr === '/' || chr === '?' || chr === '#' || chr === '[' || chr === ']' || chr === '@' || chr === '!' || chr === '$' || chr === '&' || chr === '(' ||
-            chr === ')' || chr === '*' || chr === '+' || chr === ',' || chr === ';' || chr === '=' || chr === "'";
+            chr === ')' || chr === '*' || chr === '+' || chr === ',' || chr === ';' || chr === '=' || chr === "'" || chr === '%';
     }
 
     return {
