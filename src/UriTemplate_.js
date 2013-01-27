@@ -1,10 +1,11 @@
 /*jshint unused:false */
-/*global parse*/
+/*global parse, objectHelper*/
 var UriTemplate = (function () {
     "use strict";
-    function UriTemplate(templateText, expressions) {
+    function UriTemplate (templateText, expressions) {
         this.templateText = templateText;
         this.expressions = expressions;
+        objectHelper.deepFreeze(this);
     }
 
     UriTemplate.prototype.toString = function () {
@@ -12,6 +13,7 @@ var UriTemplate = (function () {
     };
 
     UriTemplate.prototype.expand = function (variables) {
+        // this.expressions.map(function (expression) {return expression.expand(variables);}).join('');
         var
             index,
             result = '';
@@ -22,6 +24,5 @@ var UriTemplate = (function () {
     };
 
     UriTemplate.parse = parse;
-
     return UriTemplate;
 }());

@@ -1,9 +1,8 @@
 /*jshint unused:false */
-/*global pctEncoder, operators, charHelper, rfcCharHelper, LiteralExpression, UriTemplate, VariableExpression */
+/*global pctEncoder, operators, charHelper, rfcCharHelper, LiteralExpression, UriTemplate, VariableExpression*/
 var parse = (function () {
     "use strict";
-
-    function parseExpression(outerText) {
+    function parseExpression (outerText) {
         var
             text,
             operator,
@@ -14,12 +13,12 @@ var parse = (function () {
             index,
             chr = '';
 
-        function closeVarname() {
+        function closeVarname () {
             varspec = {varname: text.substring(varnameStart, index), exploded: false, maxLength: null};
             varnameStart = null;
         }
 
-        function closeMaxLength() {
+        function closeMaxLength () {
             if (maxLengthStart === index) {
                 throw new Error("after a ':' you have to specify the length. position = " + index);
             }
@@ -27,7 +26,7 @@ var parse = (function () {
             maxLengthStart = null;
         }
 
-        // remove outer {}
+        // remove outer braces
         text = outerText.substr(1, outerText.length - 2);
 
         // determine operator
@@ -52,7 +51,13 @@ var parse = (function () {
                 closeVarname();
             }
             if (maxLengthStart !== null) {
+                if (index === maxLengthStart && chr === '0') {
+                    throw new Error('A :prefix must not start with digit 0 -- see position ' + index);
+                }
                 if (charHelper.isDigit(chr)) {
+                    if (index - maxLengthStart >= 4) {
+                        throw new Error('A :prefix must max 4 digits -- see position ' + index);
+                    }
                     continue;
                 }
                 closeMaxLength();
@@ -96,7 +101,7 @@ var parse = (function () {
         return new VariableExpression(outerText, operator, varspecs);
     }
 
-    function parseTemplate(uriTemplateText) {
+    function parseTemplate (uriTemplateText) {
         // assert filled string
         var
             index,

@@ -11,7 +11,7 @@
  * @param object
  * @return {Boolean}
  */
-function isDefined(object) {
+function isDefined (object) {
     "use strict";
     var
         index,

@@ -9,14 +9,13 @@
 (function (exportCallback) {
     "use strict";
 var objectHelper = (function () {
-
-    function isArray(value) {
+    function isArray (value) {
         return Object.prototype.toString.apply(value) === '[object Array]';
     }
 
     // performs an array.reduce for objects
     // TODO handling if initialValue is undefined
-    function objectReduce(object, callback, initialValue) {
+    function objectReduce (object, callback, initialValue) {
         var
             propertyName,
             currentValue = initialValue;
@@ -30,7 +29,7 @@ var objectHelper = (function () {
 
     // performs an array.reduce, if reduce is not present (older browser...)
     // TODO handling if initialValue is undefined
-    function arrayReduce(array, callback, initialValue) {
+    function arrayReduce (array, callback, initialValue) {
         var
             index,
             currentValue = initialValue;
@@ -40,13 +39,40 @@ var objectHelper = (function () {
         return currentValue;
     }
 
-    function reduce(arrayOrObject, callback, initialValue) {
+    function reduce (arrayOrObject, callback, initialValue) {
         return isArray(arrayOrObject) ? arrayReduce(arrayOrObject, callback, initialValue) : objectReduce(arrayOrObject, callback, initialValue);
     }
 
+    function deepFreezeUsingObjectFreeze (object) {
+        if (typeof object !== "object" || object === null) {
+            return object;
+        }
+        Object.freeze(object);
+        var property, propertyName;
+        for (propertyName in object) {
+            if (object.hasOwnProperty(propertyName)) {
+                property = object[propertyName];
+                // be aware, arrays are 'object', too
+                if (typeof property === "object") {
+                    deepFreeze(property);
+                }
+            }
+        }
+        return object;
+    }
+
+    function deepFreeze (object) {
+        if (typeof Object.freeze === 'function') {
+            return deepFreezeUsingObjectFreeze(object);
+        }
+        return object;
+    }
+
+
     return {
         isArray: isArray,
-        reduce: reduce
+        reduce: reduce,
+        deepFreeze: deepFreeze
     };
 }());
 
@@ -72,7 +98,6 @@ var charHelper = (function () {
 }());
 
 var pctEncoder = (function () {
-
     var utf8 = {
         encode: function (chr) {
             // see http://ecmanaut.blogspot.de/2006/07/encoding-decoding-utf8-in-javascript.html
@@ -117,16 +142,28 @@ var pctEncoder = (function () {
         return result;
     }
 
+    /**
+     * Returns, whether the given text at start is in the form 'percent hex-digit hex-digit', like '%3F'
+     * @param text
+     * @param start
+     * @return {boolean|*|*}
+     */
     function isPercentDigitDigit (text, start) {
         return text[start] === '%' && charHelper.isHexDigit(text[start + 1]) && charHelper.isHexDigit(text[start + 2]);
     }
 
-    function parseHex2(text, start) {
+    /**
+     * Parses a hex number from start with length 2.
+     * @param text a string
+     * @param start the start index of the 2-digit hex number
+     * @return {Number}
+     */
+    function parseHex2 (text, start) {
         return parseInt(text.substr(start, 2), 16);
     }
 
     /**
-     * Returns wether or not the given char sequence is a correctly pct-encoded sequence.
+     * Returns whether or not the given char sequence is a correctly pct-encoded sequence.
      * @param chr
      * @return {boolean}
      */
@@ -185,7 +222,7 @@ var rfcCharHelper = (function () {
      * @param chr
      * @return (Boolean)
      */
-    function isVarchar(chr) {
+    function isVarchar (chr) {
         return charHelper.isAlpha(chr) || charHelper.isDigit(chr) || chr === '_' || pctEncoder.isPctEncoded(chr);
     }
 
@@ -194,16 +231,17 @@ var rfcCharHelper = (function () {
      * @param chr
      * @return {Boolean}
      */
-    function isUnreserved(chr) {
+    function isUnreserved (chr) {
         return charHelper.isAlpha(chr) || charHelper.isDigit(chr) || chr === '-' || chr === '.' || chr === '_' || chr === '~';
     }
 
     /**
      * Returns if chr is an reserved character according 1.5 of rfc 6570
+     * or the percent character mentioned in 3.2.1.
      * @param chr
      * @return {Boolean}
      */
-    function isReserved(chr) {
+    function isReserved (chr) {
         return chr === ':' || chr === '/' || chr === '?' || chr === '#' || chr === '[' || chr === ']' || chr === '@' || chr === '!' || chr === '$' || chr === '&' || chr === '(' ||
             chr === ')' || chr === '*' || chr === '+' || chr === ',' || chr === ';' || chr === '=' || chr === "'";
     }
@@ -230,13 +268,8 @@ var encodingHelper = (function () {
             text = text.toString();
         }
         for (index = 0; index < text.length; index += chr.length) {
-            chr = pctEncoder.pctCharAt(text, index);
-            if (chr.length > 1) {
-                result += chr;
-            }
-            else {
-                result += rfcCharHelper.isUnreserved(chr) || (passReserved && rfcCharHelper.isReserved(chr)) ? chr : pctEncoder.encodeCharacter(chr);
-            }
+            chr = text.charAt(index);
+            result += rfcCharHelper.isUnreserved(chr) || (passReserved && rfcCharHelper.isReserved(chr)) ? chr : pctEncoder.encodeCharacter(chr);
         }
         return result;
     }
@@ -303,7 +336,7 @@ var operators = (function () {
  * @param object
  * @return {Boolean}
  */
-function isDefined(object) {
+function isDefined (object) {
     var
         index,
         propertyName;
@@ -332,30 +365,28 @@ function isDefined(object) {
 }
 
 var LiteralExpression = (function () {
+    function LiteralExpression (literal) {
+        this.literal = LiteralExpression.encodeLiteral(literal);
+    }
 
-    function encodeLiteral(literal) {
+    LiteralExpression.encodeLiteral = function (literal) {
         var
             result = '',
             index,
             chr = '';
         for (index = 0; index < literal.length; index += chr.length) {
             chr = pctEncoder.pctCharAt(literal, index);
-            if (chr.length > 0) {
+            if (chr.length > 1) {
                 result += chr;
             }
             else {
                 result += rfcCharHelper.isReserved(chr) || rfcCharHelper.isUnreserved(chr) ? chr : pctEncoder.encodeCharacter(chr);
             }
+            // chr = literal.charAt(index);
+            // result += rfcCharHelper.isReserved(chr) || rfcCharHelper.isUnreserved(chr) ? chr : pctEncoder.encodeCharacter(chr);
         }
         return result;
-    }
-
-    function LiteralExpression(literal) {
-        this.literal = LiteralExpression.encodeLiteral(literal);
-    }
-
-    LiteralExpression.encodeLiteral = encodeLiteral;
-
+    };
 
     LiteralExpression.prototype.expand = function () {
         return this.literal;
@@ -367,8 +398,7 @@ var LiteralExpression = (function () {
 }());
 
 var parse = (function () {
-
-    function parseExpression(outerText) {
+    function parseExpression (outerText) {
         var
             text,
             operator,
@@ -379,12 +409,12 @@ var parse = (function () {
             index,
             chr = '';
 
-        function closeVarname() {
+        function closeVarname () {
             varspec = {varname: text.substring(varnameStart, index), exploded: false, maxLength: null};
             varnameStart = null;
         }
 
-        function closeMaxLength() {
+        function closeMaxLength () {
             if (maxLengthStart === index) {
                 throw new Error("after a ':' you have to specify the length. position = " + index);
             }
@@ -392,7 +422,7 @@ var parse = (function () {
             maxLengthStart = null;
         }
 
-        // remove outer {}
+        // remove outer braces
         text = outerText.substr(1, outerText.length - 2);
 
         // determine operator
@@ -417,7 +447,13 @@ var parse = (function () {
                 closeVarname();
             }
             if (maxLengthStart !== null) {
+                if (index === maxLengthStart && chr === '0') {
+                    throw new Error('A :prefix must not start with digit 0 -- see position ' + index);
+                }
                 if (charHelper.isDigit(chr)) {
+                    if (index - maxLengthStart >= 4) {
+                        throw new Error('A :prefix must max 4 digits -- see position ' + index);
+                    }
                     continue;
                 }
                 closeMaxLength();
@@ -461,7 +497,7 @@ var parse = (function () {
         return new VariableExpression(outerText, operator, varspecs);
     }
 
-    function parseTemplate(uriTemplateText) {
+    function parseTemplate (uriTemplateText) {
         // assert filled string
         var
             index,
@@ -515,13 +551,12 @@ var parse = (function () {
 }());
 
 var VariableExpression = (function () {
-
     // helper function if JSON is not available
-    function prettyPrint(value) {
+    function prettyPrint (value) {
         return JSON ? JSON.stringify(value) : value;
     }
 
-    function VariableExpression(templateText, operator, varspecs) {
+    function VariableExpression (templateText, operator, varspecs) {
         this.templateText = templateText;
         this.operator = operator;
         this.varspecs = varspecs;
@@ -531,7 +566,7 @@ var VariableExpression = (function () {
         return this.templateText;
     };
 
-    VariableExpression.prototype.expand = function expandExpression(variables) {
+    VariableExpression.prototype.expand = function (variables) {
         var
             result = '',
             index,
@@ -542,7 +577,7 @@ var VariableExpression = (function () {
             operator = this.operator;
 
         // callback to be used within array.reduce
-        function reduceUnexploded(result, currentValue, currentKey) {
+        function reduceUnexploded (result, currentValue, currentKey) {
             if (isDefined(currentValue)) {
                 if (result.length > 0) {
                     result += ',';
@@ -555,7 +590,7 @@ var VariableExpression = (function () {
             return result;
         }
 
-        function reduceNamedExploded(result, currentValue, currentKey) {
+        function reduceNamedExploded (result, currentValue, currentKey) {
             if (isDefined(currentValue)) {
                 if (result.length > 0) {
                     result += operator.separator;
@@ -566,7 +601,7 @@ var VariableExpression = (function () {
             return result;
         }
 
-        function reduceUnnamedExploded(result, currentValue, currentKey) {
+        function reduceUnnamedExploded (result, currentValue, currentKey) {
             if (isDefined(currentValue)) {
                 if (result.length > 0) {
                     result += operator.separator;
@@ -604,7 +639,7 @@ var VariableExpression = (function () {
                     }
                     result += '=';
                 }
-                if (varspec.maxLength && value.length > varspec.maxLength) {
+                if (varspec.maxLength !== null) {
                     value = value.substr(0, varspec.maxLength);
                 }
                 result += operator.encode(value);
@@ -648,14 +683,14 @@ var VariableExpression = (function () {
         return result;
     };
 
-
     return VariableExpression;
 }());
 
 var UriTemplate = (function () {
-    function UriTemplate(templateText, expressions) {
+    function UriTemplate (templateText, expressions) {
         this.templateText = templateText;
         this.expressions = expressions;
+        objectHelper.deepFreeze(this);
     }
 
     UriTemplate.prototype.toString = function () {
@@ -663,6 +698,7 @@ var UriTemplate = (function () {
     };
 
     UriTemplate.prototype.expand = function (variables) {
+        // this.expressions.map(function (expression) {return expression.expand(variables);}).join('');
         var
             index,
             result = '';
@@ -673,7 +709,6 @@ var UriTemplate = (function () {
     };
 
     UriTemplate.parse = parse;
-
     return UriTemplate;
 }());
 
@@ -685,7 +720,7 @@ var UriTemplate = (function () {
         if (typeof module !== "undefined") {
             module.exports = UriTemplate;
         }
-        else if (typeof define !== "undefined") {
+        else if (typeof define === "function") {
             define([],function() {
                 return UriTemplate;
             });

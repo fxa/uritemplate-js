@@ -12,12 +12,10 @@
   "contributors": [],
   "dependencies": {},
   "main": "bin/uritemplate.js",
-  "licenses": [
-    {
+  "licenses": [{
       "type": "MIT",
       "url": "http://www.opensource.org/licenses/mit-license.php"
-    }
-  ],
+  }],
   "files": [
     "src",
     "test",
@@ -27,7 +25,7 @@
     "demo.html",
     "demo_AMD.html",
     "README.md",
-    "reqire.js",
+    "require.js",
     ".gitmodules",
     "uritemplate-test/extended-tests.json",
     "uritemplate-test/negative-tests.json",
@@ -35,7 +33,7 @@
     "uritemplate-test/spec-examples-by-sections.json",
     "uritemplate-test/spec-examples.json"
   ],
-  "version": "0.2.3",
+  "version": "0.2.4",
   "readmeFilename": "README.md",
   "gitHead": "901b85201a821427dfb4591b56aea3a70d45c67c",
   "devDependencies": {
@@ -48,6 +46,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/fxa/uritemplate-js.git"
-  },
-  "license": "MIT"
+  }
 }

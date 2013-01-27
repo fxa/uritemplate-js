@@ -5,13 +5,13 @@ module.exports = (function () {
         fs = require('fs'),
         async = require('async');
 
-    function readFileUtf8(filename, callback) {
+    function readFileUtf8 (filename, callback) {
         // if you call readFile with encoding, the result is the file content as string.
         // without encoding it would be a stream, which can be converted to a string with its toString() method
         fs.readFile(filename, 'utf-8', callback);
     }
 
-    function concat(inputFileArr, outputfile, callback, options) {
+    function concat (inputFileArr, outputfile, callback, options) {
         async.map(inputFileArr, readFileUtf8, function (err, contents) {
             if (err) {
                 throw new Error('could not read files: ' + err);
@@ -41,19 +41,19 @@ module.exports = (function () {
         });
     }
 
-    function startsWith(text, beginning) {
+    function startsWith (text, beginning) {
         return text.substr(0, beginning.length) === beginning;
     }
 
-    function removeFirstLine(text) {
+    function removeFirstLine (text) {
         var indexOfLinebreak = text.indexOf("\n");
         if (indexOfLinebreak < 0) {
-            return "";
+            return text;
         }
         return text.substr(indexOfLinebreak + 1);
     }
 
-    function removeUseStrict(text) {
+    function removeUseStrict (text) {
         var lines = text.split('\n');
         var filteredLines = lines.filter(function (line) {
             return line.indexOf('"use strict"') < 0;
@@ -61,7 +61,7 @@ module.exports = (function () {
         return filteredLines.join('\n');
     }
 
-    function removeJshintOptions(source) {
+    function removeJshintOptions (source) {
         if (startsWith(source, '/*jshint')) {
             source = removeFirstLine(source);
         }

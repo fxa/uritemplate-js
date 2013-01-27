@@ -3,7 +3,7 @@ module.exports = (function () {
 
     var
         sandbox = require('nodeunit').utils.sandbox,
-        context = {console: console};
+        context = {};
     sandbox('src/objectHelper.js', context);
     sandbox('src/charHelper.js', context);
     sandbox('src/pctEncoder.js', context);
@@ -11,6 +11,7 @@ module.exports = (function () {
     sandbox('src/encodingHelper.js', context);
     sandbox('src/operators.js', context);
     sandbox('src/isDefined.js', context);
+    sandbox('src/LiteralExpression.js', context);
     sandbox('src/VariableExpression.js', context);
 
     var operators = context.operators;
@@ -38,6 +39,27 @@ module.exports = (function () {
                 {varname: 'empty', exploded: true, maxLength: null}
             ]);
             test.equal(ve.expand({empty: {}}), '');
+            test.done();
+        },
+        "double encode if ?": function (test) {
+            var ve = new VariableExpression("{?uri", operators.valueOf('?'), [
+                {varname: 'uri', exploded: false, maxLength: null}
+            ]);
+            test.equal(ve.expand({uri: 'http://example.org/?ref=http%3A%2F%2Fother.org%2F'}), '?uri=http%3A%2F%2Fexample.org%2F%3Fref%3Dhttp%253A%252F%252Fother.org%252F');
+            test.done();
+        },
+        "not double encode if +": function (test) {
+            var ve = new VariableExpression("{+uri", operators.valueOf('+'), [
+                {varname: 'uri', exploded: false, maxLength: null}
+            ]);
+            test.equal(ve.expand({uri: 'http://example.org/?ref=http%3A%2F%2Fother.org%2F'}), 'http://example.org/?ref=http%253A%252F%252Fother.org%252F');
+            test.done();
+        },
+        'maxLength is used': function (test) {
+            var ve = new VariableExpression("{one:1}", operators.valueOf(''), [
+                {varname: 'one', exploded: false, maxLength: 1}
+            ]);
+            test.equal(ve.expand({one: 'two'}), 't');
             test.done();
         }
     };

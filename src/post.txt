@@ -7,7 +7,7 @@
         if (typeof module !== "undefined") {
             module.exports = UriTemplate;
         }
-        else if (typeof define !== "undefined") {
+        else if (typeof define === "function") {
             define([],function() {
                 return UriTemplate;
             });

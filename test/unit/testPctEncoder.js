@@ -3,7 +3,7 @@ module.exports = (function () {
 
     var
         sandbox = require('nodeunit').utils.sandbox,
-        context = {console: console};
+        context = {};
     sandbox('src/charHelper.js', context);
     sandbox('src/pctEncoder.js', context);
     var charHelper = context.charHelper;
@@ -62,24 +62,7 @@ module.exports = (function () {
                 test.equal(pctEncoder.encodeCharacter('!'), '%21');
                 test.done();
             }
-        },
-
-
-        'this and that': {
-            "ouml is correct encoded": function (test) {
-                test.equal(pctEncoder.encodeCharacter('ö'), '%C3%B6');
-                test.done();
-            },
-            'ouml is pctEncoded': function (test) {
-                test.ok(pctEncoder.isPctEncoded('%C3%B6'));
-                test.done();
-            },
-            'ouml is extracted from text': function (test) {
-                test.equal(pctEncoder.pctCharAt('zw%C3%B6lf', 2), '%C3%B6');
-                test.done();
-            }
         }
-
     };
 }());
 

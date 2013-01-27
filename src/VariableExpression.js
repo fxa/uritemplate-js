@@ -2,13 +2,12 @@
 /*global pctEncoder, rfcCharHelper, isDefined, LiteralExpression, objectHelper*/
 var VariableExpression = (function () {
     "use strict";
-
     // helper function if JSON is not available
-    function prettyPrint(value) {
+    function prettyPrint (value) {
         return JSON ? JSON.stringify(value) : value;
     }
 
-    function VariableExpression(templateText, operator, varspecs) {
+    function VariableExpression (templateText, operator, varspecs) {
         this.templateText = templateText;
         this.operator = operator;
         this.varspecs = varspecs;
@@ -18,7 +17,7 @@ var VariableExpression = (function () {
         return this.templateText;
     };
 
-    VariableExpression.prototype.expand = function expandExpression(variables) {
+    VariableExpression.prototype.expand = function (variables) {
         var
             result = '',
             index,
@@ -29,7 +28,7 @@ var VariableExpression = (function () {
             operator = this.operator;
 
         // callback to be used within array.reduce
-        function reduceUnexploded(result, currentValue, currentKey) {
+        function reduceUnexploded (result, currentValue, currentKey) {
             if (isDefined(currentValue)) {
                 if (result.length > 0) {
                     result += ',';
@@ -42,7 +41,7 @@ var VariableExpression = (function () {
             return result;
         }
 
-        function reduceNamedExploded(result, currentValue, currentKey) {
+        function reduceNamedExploded (result, currentValue, currentKey) {
             if (isDefined(currentValue)) {
                 if (result.length > 0) {
                     result += operator.separator;
@@ -53,7 +52,7 @@ var VariableExpression = (function () {
             return result;
         }
 
-        function reduceUnnamedExploded(result, currentValue, currentKey) {
+        function reduceUnnamedExploded (result, currentValue, currentKey) {
             if (isDefined(currentValue)) {
                 if (result.length > 0) {
                     result += operator.separator;
@@ -91,7 +90,7 @@ var VariableExpression = (function () {
                     }
                     result += '=';
                 }
-                if (varspec.maxLength && value.length > varspec.maxLength) {
+                if (varspec.maxLength !== null) {
                     value = value.substr(0, varspec.maxLength);
                 }
                 result += operator.encode(value);
@@ -134,7 +133,6 @@ var VariableExpression = (function () {
 
         return result;
     };
-
 
     return VariableExpression;
 }());

@@ -47,6 +47,7 @@
         UNIT_TESTS = new jake.FileList('test/unit/test*.js').toArray(),
         INTEGRATION_TESTS = [
             path.join('test', 'integration', 'simpleTest.js'),
+            path.join('test', 'integration', 'testExport.js'),
             path.join('test', 'integration', 'testRfcSamples.js')
         ],
 
@@ -59,32 +60,36 @@
 
         ASYNC = {async: true};
 
-    var all = new jake.FileList();
-    all.include('./Jakefile.js', 'own-testcases.json');
-    all.include('src/**');
-    all.include('test/**');
-    all.exclude(TARGET_COMPRESSED);
-    var TARGET_UNCOMPRESSED_DEPENDENCIES = all.toArray();
+    var TARGET_UNCOMPRESSED_DEPENDENCIES = (function () {
+        var all = new jake.FileList();
+        all.include('./Jakefile.js', 'own-testcases.json');
+        all.include('src/**');
+        all.include('test/**');
+        all.exclude(TARGET_COMPRESSED);
+        return all.toArray();
+    }());
 
-    function closeTask(err) {
+    function closeTask (err) {
         if (err) {
-            fail(err);
+            fail(JSON.stringify(err, null, 4));
         }
-        complete();
+        else {
+            complete();
+        }
     }
 
-    desc('clean');
+    desc('removes all artifacts');
     task('clean', [], function () {
-        function unlinkWhenExists(filename, callback) {
+        function unlinkWhenExists (filename, callback) {
             fs.unlink(filename, function (err) {
                 callback(err && err.code !== 'ENOENT' ? err : undefined);
             });
         }
-
         async.forEach([TMP_UNTESTED_UNCOMPRESSED, TMP_UNTESTED_COMPRESSED, TARGET_UNCOMPRESSED, TARGET_COMPRESSED], unlinkWhenExists, closeTask);
     }, ASYNC);
 
     file(TARGET_UNCOMPRESSED, TARGET_UNCOMPRESSED_DEPENDENCIES, function () {
+        // there is no other way to pass parameters to a testcase -- sorry
         global.URI_TEMPLATE_FILE = TMP_UNTESTED_UNCOMPRESSED;
         async.series([
             function (callback) {
@@ -93,7 +98,7 @@
             },
             function (callback) {
                 jake.logger.log('unit testing ...');
-                nodeunit.reporters[NODEUNIT_REPORTER].run(UNIT_TESTS, NODEUNIT_OPTIONS, callback);
+                nodeunit.reporters['minimal'].run(UNIT_TESTS, NODEUNIT_OPTIONS, callback);
             },
             function (callback) {
                 jake.logger.log('build concatenated version ...');
@@ -138,9 +143,8 @@
     }, ASYNC);
 
     // for short test only
-    desc('unit tests');
+    desc('unit tests (without jshint)');
     task('unit', [], function () {
-        // here we want the default reporter and not the configured one
         nodeunit.reporters['default'].run(UNIT_TESTS, NODEUNIT_OPTIONS, complete);
     }, ASYNC);
 
@@ -148,7 +152,6 @@
     task('build', [TARGET_COMPRESSED], function () {
         jake.logger.log('done.');
     });
-    task('default', ['clean', 'release']);
-
+    task('default', ['clean', 'build']);
 
 }());

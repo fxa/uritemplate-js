@@ -8,5 +8,40 @@
         "testcases" : [
            ["http://localhost:8080/api/search{?q}", "http://localhost:8080/api/search?q=val"]
         ]
+    },
+    "Allowed characters": {
+        "level": 3,
+        "variables": {
+            "dot": "dot"
+        },
+        "testcases": [
+            ["{?.dot}", false],
+            ["{a,.b}", false]
+        ]
+    },
+    "Prefix modifiers": {
+        "level": 4,
+        "variables": {
+            "text": "I like octal numbers",
+            "emptyObject": {},
+            "filledObject": {"composite": "true"},
+            "emptyArr": [],
+            "filledArr": [1]
+        },
+        "testcases": [
+            ["{text:0}", false],
+            ["{text:08}", false],
+            ["{text:8}", "I%20like%20o"],
+            ["{text:9999}", "I%20like%20octal%20numbers"],
+            ["{text:10000}", false],
+            ["{text:1.0}", false],
+            ["{text:1e+2}", false],
+            ["{text:9876543210987654321098765432109876543210}", false],
+            ["{emptyObject:1}", ""],
+            ["{filledObject:1}", false],
+            ["{emptyArr:1}", ""],
+            ["{filledArr:1}", false]
+
+        ]
     }
 }

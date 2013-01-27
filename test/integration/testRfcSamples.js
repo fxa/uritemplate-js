@@ -5,27 +5,25 @@ module.exports = (function () {
         fs = require('fs'),
         path = require('path'),
         sandbox = require('nodeunit').utils.sandbox;
-    // var testCase = require('nodeunit').testCase;
 
     var NOISY = false;
-    function log(text) {
+    function log (text) {
         if (NOISY) {
             console.log(text);
         }
     }
 
-
-    function loadUriTemplate() {
+    function loadUriTemplate () {
         var context = {module: {}};
         sandbox(global.URI_TEMPLATE_FILE, context);
         return context.module.exports;
     }
 
-    function loadTestFile(testFileName) {
+    function loadTestFile (testFileName) {
         return JSON.parse(fs.readFileSync(testFileName));
     }
 
-    function assertMatches(test, template, variables, expected, chapterName, UriTemplate) {
+    function assertMatches (test, template, variables, expected, chapterName, UriTemplate) {
         var
             uriTemplate,
             actual,
@@ -34,13 +32,12 @@ module.exports = (function () {
             uriTemplate = UriTemplate.parse(template);
         }
         catch (error) {
-            // if expected === false, the error was expected!
             if (expected === false) {
                 log('ok. expected error found');
                 return;
             }
-            log('error', error);
-            test.fail('chapter ' + chapterName + ', template ' + template + ' threw error: ' + error);
+            console.log('error', error);
+            test.fail('chapter ' + chapterName + ', template ' + template + ' threw error, when parsing: ' + error);
             return;
         }
         test.ok(!!uriTemplate, 'uri template could not be parsed');
@@ -51,11 +48,12 @@ module.exports = (function () {
                 return;
             }
         }
-        catch (exception) {
+        catch (error) {
             if (expected === false) {
                 return;
             }
-            test.fail('chapter ' + chapterName + ', template ' + template + ' threw error: ' + JSON.stringify(exception, null, 4));
+            console.log('error', error);
+            test.fail('chapter ' + chapterName + ', template ' + template + ' threw error, when expanding: ' + JSON.stringify(error, null, 4));
             return;
         }
         if (expected.constructor === Array) {
@@ -74,11 +72,11 @@ module.exports = (function () {
             test.fail("actual: '" + actual + "', expected: one of " + JSON.stringify(expected) + ', chapter ' + chapterName + ', template ' + template);
         }
         else {
-            test.equal(actual, expected, 'actual: ' + actual + ', expected: ' + expected + ', template: ' + template);
+            test.equal(actual, expected, 'actual: "' + actual + '", expected: "' + expected + '", template: "' + template + '"');
         }
     }
 
-    function runTestFile(test, filename) {
+    function runTestFile (test, filename) {
         var
             tests,
             chapterName,
@@ -107,11 +105,14 @@ module.exports = (function () {
         test.done();
     }
 
-    var SPEC_HOME = 'uritemplate-test';
+    var SPEC_HOME = '../uritemplate-test';
 
     return {
         'spec examples': function (test) {
             runTestFile(test, path.join(SPEC_HOME, 'spec-examples.json'));
+        },
+        'spec examples by section': function (test) {
+            runTestFile(test, path.join(SPEC_HOME, 'spec-examples-by-section.json'));
         },
         'extended tests': function (test) {
             runTestFile(test, path.join(SPEC_HOME, 'extended-tests.json'));
@@ -121,6 +122,10 @@ module.exports = (function () {
         },
         'own tests': function (test) {
             runTestFile(test, 'own-testcases.json');
+        },
+        'testfile': function (test) {
+            test.ok(global.URI_TEMPLATE_FILE.substr(0, 3), 'tmp');
+            test.done();
         }
     };
 }());

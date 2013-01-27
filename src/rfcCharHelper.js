@@ -8,7 +8,7 @@ var rfcCharHelper = (function () {
      * @param chr
      * @return (Boolean)
      */
-    function isVarchar(chr) {
+    function isVarchar (chr) {
         return charHelper.isAlpha(chr) || charHelper.isDigit(chr) || chr === '_' || pctEncoder.isPctEncoded(chr);
     }
 
@@ -17,7 +17,7 @@ var rfcCharHelper = (function () {
      * @param chr
      * @return {Boolean}
      */
-    function isUnreserved(chr) {
+    function isUnreserved (chr) {
         return charHelper.isAlpha(chr) || charHelper.isDigit(chr) || chr === '-' || chr === '.' || chr === '_' || chr === '~';
     }
 
@@ -27,9 +27,9 @@ var rfcCharHelper = (function () {
      * @param chr
      * @return {Boolean}
      */
-    function isReserved(chr) {
+    function isReserved (chr) {
         return chr === ':' || chr === '/' || chr === '?' || chr === '#' || chr === '[' || chr === ']' || chr === '@' || chr === '!' || chr === '$' || chr === '&' || chr === '(' ||
-            chr === ')' || chr === '*' || chr === '+' || chr === ',' || chr === ';' || chr === '=' || chr === "'" || chr === '%';
+            chr === ')' || chr === '*' || chr === '+' || chr === ',' || chr === ';' || chr === '=' || chr === "'";
     }
 
     return {

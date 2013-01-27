@@ -2,7 +2,6 @@
 /*global charHelper, unescape*/
 var pctEncoder = (function () {
     "use strict";
-
     var utf8 = {
         encode: function (chr) {
             // see http://ecmanaut.blogspot.de/2006/07/encoding-decoding-utf8-in-javascript.html
@@ -47,16 +46,28 @@ var pctEncoder = (function () {
         return result;
     }
 
+    /**
+     * Returns, whether the given text at start is in the form 'percent hex-digit hex-digit', like '%3F'
+     * @param text
+     * @param start
+     * @return {boolean|*|*}
+     */
     function isPercentDigitDigit (text, start) {
         return text[start] === '%' && charHelper.isHexDigit(text[start + 1]) && charHelper.isHexDigit(text[start + 2]);
     }
 
-    function parseHex2(text, start) {
+    /**
+     * Parses a hex number from start with length 2.
+     * @param text a string
+     * @param start the start index of the 2-digit hex number
+     * @return {Number}
+     */
+    function parseHex2 (text, start) {
         return parseInt(text.substr(start, 2), 16);
     }
 
     /**
-     * Returns wether or not the given char sequence is a correctly pct-encoded sequence.
+     * Returns whether or not the given char sequence is a correctly pct-encoded sequence.
      * @param chr
      * @return {boolean}
      */
