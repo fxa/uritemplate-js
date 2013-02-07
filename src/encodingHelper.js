@@ -25,9 +25,27 @@ var encodingHelper = (function () {
         return encode(text, true);
     }
 
+    function encodeLiteral (literal) {
+        var
+            result = '',
+            index,
+            chr = '';
+        for (index = 0; index < literal.length; index += chr.length) {
+            chr = pctEncoder.pctCharAt(literal, index);
+            if (chr.length > 1) {
+                result += chr;
+            }
+            else {
+                result += rfcCharHelper.isReserved(chr) || rfcCharHelper.isUnreserved(chr) ? chr : pctEncoder.encodeCharacter(chr);
+            }
+        }
+        return result;
+    }
+
     return {
         encode: encode,
-        encodePassReserved: encodePassReserved
+        encodePassReserved: encodePassReserved,
+        encodeLiteral: encodeLiteral
     };
 
 }());

@@ -1,10 +1,10 @@
 /*jshint unused:false */
-/*global pctEncoder, operators, charHelper, rfcCharHelper, LiteralExpression, UriTemplate, VariableExpression*/
+/*global pctEncoder, operators, charHelper, rfcCharHelper, LiteralExpression, UriTemplate, VariableExpression, UriTemplateError*/
 var parse = (function () {
     "use strict";
-    function parseExpression (outerText) {
+
+    function parseExpression (expressionText) {
         var
-            text,
             operator,
             varspecs = [],
             varspec = null,
@@ -14,34 +14,42 @@ var parse = (function () {
             chr = '';
 
         function closeVarname () {
-            varspec = {varname: text.substring(varnameStart, index), exploded: false, maxLength: null};
+            var varname = expressionText.substring(varnameStart, index);
+            if (varname.length === 0) {
+                throw new UriTemplateError({expressionText: expressionText, message: "a varname must be specified", position: index});
+            }
+            varspec = {varname: varname, exploded: false, maxLength: null};
             varnameStart = null;
         }
 
         function closeMaxLength () {
             if (maxLengthStart === index) {
-                throw new Error("after a ':' you have to specify the length. position = " + index);
+                throw new UriTemplateError({expressionText: expressionText, message: "after a ':' you have to specify the length", position: index});
             }
-            varspec.maxLength = parseInt(text.substring(maxLengthStart, index), 10);
+            varspec.maxLength = parseInt(expressionText.substring(maxLengthStart, index), 10);
             maxLengthStart = null;
         }
 
-        // remove outer braces
-        text = outerText.substr(1, outerText.length - 2);
+        operator = (function (operatorText) {
+            var op = operators.valueOf(operatorText);
+            if (op === null) {
+                throw new UriTemplateError({expressionText: expressionText, message: "illegal use of reserved operator", position: index, operator: operatorText});
+            }
+            return op;
+        }(expressionText.charAt(0)));
+        index = operator.symbol.length;
 
-        // determine operator
-        operator = operators.valueOf(text.charAt(0));
-        index = (operator.symbol === '') ? 0 : 1;
         varnameStart = index;
 
-        for (; index < text.length; index += chr.length) {
-            chr = pctEncoder.pctCharAt(text, index);
+        for (; index < expressionText.length; index += chr.length) {
+            chr = pctEncoder.pctCharAt(expressionText, index);
+
             if (varnameStart !== null) {
                 // the spec says: varname =  varchar *( ["."] varchar )
                 // so a dot is allowed except for the first char
                 if (chr === '.') {
                     if (varnameStart === index) {
-                        throw new Error('a varname MUST NOT start with a dot -- see position ' + index);
+                        throw new UriTemplateError({expressionText: expressionText, message: "a varname MUST NOT start with a dot", position: index});
                     }
                     continue;
                 }
@@ -52,11 +60,11 @@ var parse = (function () {
             }
             if (maxLengthStart !== null) {
                 if (index === maxLengthStart && chr === '0') {
-                    throw new Error('A :prefix must not start with digit 0 -- see position ' + index);
+                    throw new UriTemplateError({expressionText: expressionText, message: "A :prefix must not start with digit 0", position: index});
                 }
                 if (charHelper.isDigit(chr)) {
                     if (index - maxLengthStart >= 4) {
-                        throw new Error('A :prefix must max 4 digits -- see position ' + index);
+                        throw new UriTemplateError({expressionText: expressionText, message: "A :prefix must have max 4 digits", position: index});
                     }
                     continue;
                 }
@@ -64,20 +72,23 @@ var parse = (function () {
             }
             if (chr === ':') {
                 if (varspec.maxLength !== null) {
-                    throw new Error('only one :maxLength is allowed per varspec at position ' + index);
+                    throw new UriTemplateError({expressionText: expressionText, message: "only one :maxLength is allowed per varspec", position: index});
+                }
+                if (varspec.exploded) {
+                    throw new UriTemplateError({expressionText: expressionText, message: "an exploeded varspec MUST NOT be varspeced", position: index});
                 }
                 maxLengthStart = index + 1;
                 continue;
             }
             if (chr === '*') {
                 if (varspec === null) {
-                    throw new Error('explode exploded at position ' + index);
+                    throw new UriTemplateError({expressionText: expressionText, message: "exploded without varspec", position: index});
                 }
                 if (varspec.exploded) {
-                    throw new Error('explode exploded twice at position ' + index);
+                    throw new UriTemplateError({expressionText: expressionText, message: "exploded twice", position: index});
                 }
                 if (varspec.maxLength) {
-                    throw new Error('an explode (*) MUST NOT follow to a prefix, see position ' + index);
+                    throw new UriTemplateError({expressionText: expressionText, message: "an explode (*) MUST NOT follow to a prefix", position: index});
                 }
                 varspec.exploded = true;
                 continue;
@@ -89,7 +100,7 @@ var parse = (function () {
                 varnameStart = index + 1;
                 continue;
             }
-            throw new Error("illegal character '" + chr + "' at position " + index + ' of "' + text + '"');
+            throw new UriTemplateError({expressionText: expressionText, message: "illegal character", character: chr, position: index});
         } // for chr
         if (varnameStart !== null) {
             closeVarname();
@@ -98,10 +109,10 @@ var parse = (function () {
             closeMaxLength();
         }
         varspecs.push(varspec);
-        return new VariableExpression(outerText, operator, varspecs);
+        return new VariableExpression(expressionText, operator, varspecs);
     }
 
-    function parseTemplate (uriTemplateText) {
+    function parse (uriTemplateText) {
         // assert filled string
         var
             index,
@@ -113,7 +124,7 @@ var parse = (function () {
             chr = uriTemplateText.charAt(index);
             if (literalStart !== null) {
                 if (chr === '}') {
-                    throw new Error('brace was closed in position ' + index + " but never opened");
+                    throw new UriTemplateError({templateText: uriTemplateText, message: "unopened brace closed", position: index});
                 }
                 if (chr === '{') {
                     if (literalStart < index) {
@@ -128,13 +139,21 @@ var parse = (function () {
             if (braceOpenIndex !== null) {
                 // here just { is forbidden
                 if (chr === '{') {
-                    throw new Error('brace was opened in position ' + braceOpenIndex + " and cannot be reopened in position " + index);
+                    throw new UriTemplateError({templateText: uriTemplateText, message: "brace already opened", position: index});
                 }
                 if (chr === '}') {
                     if (braceOpenIndex + 1 === index) {
-                        throw new Error("empty braces on position " + braceOpenIndex);
+                        throw new UriTemplateError({templateText: uriTemplateText, message: "empty braces", position: braceOpenIndex});
                     }
-                    expressions.push(parseExpression(uriTemplateText.substring(braceOpenIndex, index + 1)));
+                    try {
+                        expressions.push(parseExpression(uriTemplateText.substring(braceOpenIndex + 1, index)));
+                    }
+                    catch (error) {
+                        if (error.prototype === UriTemplateError.prototype) {
+                            throw new UriTemplateError({templateText: uriTemplateText, message: error.options.message, position: braceOpenIndex + error.options.position, details: error.options});
+                        }
+                        throw error;
+                    }
                     braceOpenIndex = null;
                     literalStart = index + 1;
                 }
@@ -143,7 +162,7 @@ var parse = (function () {
             throw new Error('reached unreachable code');
         }
         if (braceOpenIndex !== null) {
-            throw new Error("brace was opened on position " + braceOpenIndex + ", but never closed");
+            throw new UriTemplateError({templateText: uriTemplateText, message: "unclosed brace", position: braceOpenIndex});
         }
         if (literalStart < uriTemplateText.length) {
             expressions.push(new LiteralExpression(uriTemplateText.substr(literalStart)));
@@ -151,5 +170,5 @@ var parse = (function () {
         return new UriTemplate(uriTemplateText, expressions);
     }
 
-    return parseTemplate;
+    return parse;
 }());

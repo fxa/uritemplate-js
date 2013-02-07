@@ -8,12 +8,13 @@ module.exports = (function () {
     sandbox('src/pctEncoder.js', context);
     sandbox('src/rfcCharHelper.js', context);
     sandbox('src/encodingHelper.js', context);
-    sandbox('src/LiteralExpression.js', context);
-    var LiteralExpression = context.LiteralExpression;
+    var encodingHelper = context.encodingHelper;
 
     return {
-        'LiteralExpression has an expand method': function (test) {
-            test.equal(typeof LiteralExpression.prototype.expand, 'function');
+        'encodeLiteral works as expected': function (test) {
+            test.equal(typeof encodingHelper.encodeLiteral, 'function');
+            test.equal(encodingHelper.encodeLiteral('a b'), 'a%20b');
+            test.equal(encodingHelper.encodeLiteral('a%20b'), 'a%20b');
             test.done();
         }
     };

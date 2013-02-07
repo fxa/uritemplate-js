@@ -1,5 +1,5 @@
 /*jshint unused:false */
-/*global parse, objectHelper*/
+/*global parse, objectHelper, UriTemplateError*/
 var UriTemplate = (function () {
     "use strict";
     function UriTemplate (templateText, expressions) {
@@ -24,5 +24,6 @@ var UriTemplate = (function () {
     };
 
     UriTemplate.parse = parse;
+    UriTemplate.UriTemplateError = UriTemplateError;
     return UriTemplate;
 }());

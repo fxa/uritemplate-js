@@ -62,6 +62,7 @@ MIT License, see http://mit-license.org/
 
 Release Notes
 -------------
+* 0.3.0 introduced UriTemplateError as exception, so the interface changed from string to UriTemplateError (as the rfc suggested)
 * 0.2.4 fixed double encoding according [RubenVerborgh] and some Prefix modifiers bugs
 * 0.2.3 fixed bug with empty objects ('{?empty}' with '{empty:{}}' shall expand to '?empty=')
 * 0.2.2 fixed pct encoding bug with multibyte utf8 chars

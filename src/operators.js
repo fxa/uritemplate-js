@@ -8,7 +8,7 @@ var operators = (function () {
     var
         bySymbol = {};
 
-    function create(symbol) {
+    function create (symbol) {
         bySymbol[symbol] = {
             symbol: symbol,
             separator: (symbol === '?') ? '&' : (symbol === '' || symbol === '+' || symbol === '#') ? ',' : symbol,
@@ -30,13 +30,15 @@ var operators = (function () {
     create(';');
     create('?');
     create('&');
-    return {valueOf: function (chr) {
-        if (bySymbol[chr]) {
-            return bySymbol[chr];
+    return {
+        valueOf: function (chr) {
+            if (bySymbol[chr]) {
+                return bySymbol[chr];
+            }
+            if ("=,!@|".indexOf(chr) >= 0) {
+                return null;
+            }
+            return bySymbol[''];
         }
-        if ("=,!@|".indexOf(chr) >= 0) {
-            throw new Error('Illegal use of reserved operator "' + chr + '"');
-        }
-        return bySymbol[''];
-    }};
+    };
 }());

@@ -5,6 +5,7 @@ module.exports = (function () {
     var
         sandbox = require('nodeunit').utils.sandbox,
         context = {};
+    sandbox('src/UriTemplateError.js', context);
     sandbox('src/objectHelper.js', context);
     sandbox('src/charHelper.js', context);
     sandbox('src/pctEncoder.js', context);

@@ -1,5 +1,5 @@
 /*jshint unused:false */
-/*global pctEncoder, rfcCharHelper, isDefined, LiteralExpression, objectHelper*/
+/*global pctEncoder, rfcCharHelper, isDefined, objectHelper, encodingHelper*/
 var VariableExpression = (function () {
     "use strict";
     // helper function if JSON is not available
@@ -46,7 +46,7 @@ var VariableExpression = (function () {
                 if (result.length > 0) {
                     result += operator.separator;
                 }
-                result += (valueIsArr) ? LiteralExpression.encodeLiteral(varspec.varname) : operator.encode(currentKey);
+                result += (valueIsArr) ? encodingHelper.encodeLiteral(varspec.varname) : operator.encode(currentKey);
                 result += '=' + operator.encode(currentValue);
             }
             return result;
@@ -83,7 +83,7 @@ var VariableExpression = (function () {
             if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
                 value = value.toString();
                 if (operator.named) {
-                    result += LiteralExpression.encodeLiteral(varspec.varname);
+                    result += encodingHelper.encodeLiteral(varspec.varname);
                     if (value === '') {
                         result += operator.ifEmpty;
                         continue;
@@ -101,7 +101,7 @@ var VariableExpression = (function () {
             }
             else if (!varspec.exploded) {
                 if (operator.named) {
-                    result += LiteralExpression.encodeLiteral(varspec.varname);
+                    result += encodingHelper.encodeLiteral(varspec.varname);
                     if (!isDefined(value)) {
                         result += operator.ifEmpty;
                         continue;

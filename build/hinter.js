@@ -11,8 +11,8 @@ module.exports = (function () {
             bitwise: true, // bitwise is forbidden
             curly: true, // must put oneliners in curly braces
             eqeqeq: true, // must use ===
-            forin: true,
-            immed: true, // wrap immediately called functions
+            forin: true, // for in must use hasOwnProperty()
+            immed: true, // immediately called functions must be wrapped in ()
             newcap: true, // CAP constructors
             noarg: true, // arguments.caller is evil
             noempty: true, // empty blocks are forbidden
@@ -21,9 +21,7 @@ module.exports = (function () {
             strict: true, // must use "use strict"
             undef: true,  // forbids use of undefined variables
             unused: true, // forbids unused variables
-
-            maxcomplexity: 19 // much too high. should be max. 10
-
+            maxcomplexity: 20 // much too high. should be max. 10
         },
         JSHINT_GLOBALS = {
             "module": true

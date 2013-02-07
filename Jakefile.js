@@ -32,6 +32,7 @@
         SRC_HOME = 'src',
         SRC_FILES = [
             // cannot use the fileList, because the order matters
+            path.join(SRC_HOME, 'UriTemplateError.js'),
             path.join(SRC_HOME, 'objectHelper.js'),
             path.join(SRC_HOME, 'charHelper.js'),
             path.join(SRC_HOME, 'pctEncoder.js'),

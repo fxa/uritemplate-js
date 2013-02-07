@@ -3,15 +3,15 @@
 var charHelper = (function () {
     "use strict";
 
-    function isAlpha(chr) {
+    function isAlpha (chr) {
         return (chr >= 'a' && chr <= 'z') || ((chr >= 'A' && chr <= 'Z'));
     }
 
-    function isDigit(chr) {
+    function isDigit (chr) {
         return chr >= '0' && chr <= '9';
     }
 
-    function isHexDigit(chr) {
+    function isHexDigit (chr) {
         return isDigit(chr) || (chr >= 'a' && chr <= 'f') || (chr >= 'A' && chr <= 'F');
     }
 

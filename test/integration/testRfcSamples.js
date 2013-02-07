@@ -9,7 +9,7 @@ module.exports = (function () {
     var NOISY = false;
     function log (text) {
         if (NOISY) {
-            console.log(text);
+            console.log.call(null, arguments);
         }
     }
 
@@ -32,19 +32,20 @@ module.exports = (function () {
             uriTemplate = UriTemplate.parse(template);
         }
         catch (error) {
-            if (expected === false) {
-                log('ok. expected error found');
+            if (expected === false && error.constructor.prototype === UriTemplate.UriTemplateError.prototype) {
+                log('ok. expected error found', error);
                 return;
             }
             console.log('error', error);
-            test.fail('chapter ' + chapterName + ', template ' + template + ' threw error, when parsing: ' + error);
+            console.log('error.constructor.prototype', error.constructor.prototype);
+            test.fail('chapter ' + chapterName + ', template ' + template + ' threw error: ' + error);
             return;
         }
         test.ok(!!uriTemplate, 'uri template could not be parsed');
         try {
             actual = uriTemplate.expand(variables);
             if (expected === false) {
-                test.fail('chapter ' + chapterName + ', template ' + template + ' expected to fail, but returned \'' + actual + '\'!');
+                test.fail('chapter ' + chapterName + ', template ' + template + ' expected to fail, but returned \'' + actual + '\'');
                 return;
             }
         }
@@ -53,7 +54,7 @@ module.exports = (function () {
                 return;
             }
             console.log('error', error);
-            test.fail('chapter ' + chapterName + ', template ' + template + ' threw error, when expanding: ' + JSON.stringify(error, null, 4));
+            test.fail('chapter ' + chapterName + ', template "' + template + '" threw error, when expanding: ' + JSON.stringify(error, null, 4));
             return;
         }
         if (expected.constructor === Array) {
