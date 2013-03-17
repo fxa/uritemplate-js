@@ -7,6 +7,36 @@ var VariableExpression = (function () {
         return JSON ? JSON.stringify(value) : value;
     }
 
+    function isEmpty (value) {
+        if (!isDefined(value)) {
+            return true;
+        }
+        if (value === '') {
+            return true;
+        }
+        if (objectHelper.isArray(value)) {
+            return value.length === 0;
+        }
+        for (var propertyName in value) {
+            if (value.hasOwnProperty(propertyName)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function propertyArray (object) {
+        var
+            result = [],
+            propertyName;
+        for (propertyName in object) {
+            if (object.hasOwnProperty(propertyName)) {
+                result.push({name: propertyName, value: object[propertyName]});
+            }
+        }
+        return result;
+    }
+
     function VariableExpression (templateText, operator, varspecs) {
         this.templateText = templateText;
         this.operator = operator;
@@ -17,121 +47,167 @@ var VariableExpression = (function () {
         return this.templateText;
     };
 
+    function expandSimpleValue(varspec, operator, value) {
+        var result = '';
+        value = value.toString();
+        if (operator.named) {
+            result += encodingHelper.encodeLiteral(varspec.varname);
+            if (value === '') {
+                result += operator.ifEmpty;
+                return result;
+            }
+            result += '=';
+        }
+        if (varspec.maxLength !== null) {
+            value = value.substr(0, varspec.maxLength);
+        }
+        result += operator.encode(value);
+        return result;
+    }
+
+    function valueDefined (nameValue) {
+        return isDefined(nameValue.value);
+    }
+
+    function expandNotExploded(varspec, operator, value) {
+        var
+            arr = [],
+            result = '';
+        if (operator.named) {
+            result += encodingHelper.encodeLiteral(varspec.varname);
+            if (isEmpty(value)) {
+                result += operator.ifEmpty;
+                return result;
+            }
+            result += '=';
+        }
+        if (objectHelper.isArray(value)) {
+            arr = value;
+            arr = objectHelper.filter(arr, isDefined);
+            arr = objectHelper.map(arr, operator.encode);
+            result += objectHelper.join(arr, ',');
+        }
+        else {
+            arr = propertyArray(value);
+            arr = objectHelper.filter(arr, valueDefined);
+            arr = objectHelper.map(arr, function (nameValue) {
+                return operator.encode(nameValue.name) + ',' + operator.encode(nameValue.value);
+            });
+            result += objectHelper.join(arr, ',');
+        }
+        return result;
+    }
+
+    function expandExplodedNamed (varspec, operator, value) {
+        var
+            isArray = objectHelper.isArray(value),
+            arr = [];
+        if (isArray) {
+            arr = value;
+            arr = objectHelper.filter(arr, isDefined);
+            arr = objectHelper.map(arr, function (listElement) {
+                var tmp = encodingHelper.encodeLiteral(varspec.varname);
+                if (isEmpty(listElement)) {
+                    tmp += operator.ifEmpty;
+                }
+                else {
+                    tmp += '=' + operator.encode(listElement);
+                }
+                return tmp;
+            });
+        }
+        else {
+            arr = propertyArray(value);
+            arr = objectHelper.filter(arr, valueDefined);
+            arr = objectHelper.map(arr, function (nameValue) {
+                var tmp = encodingHelper.encodeLiteral(nameValue.name);
+                if (isEmpty(nameValue.value)) {
+                    tmp += operator.ifEmpty;
+                }
+                else {
+                    tmp += '=' + operator.encode(nameValue.value);
+                }
+                return tmp;
+            });
+        }
+        return objectHelper.join(arr, operator.separator);
+    }
+
+    function expandExplodedUnnamed (operator, value) {
+        var
+            arr = [],
+            result = '';
+        if (objectHelper.isArray(value)) {
+            arr = value;
+            arr = objectHelper.filter(arr, isDefined);
+            arr = objectHelper.map(arr, operator.encode);
+            result += objectHelper.join(arr, operator.separator);
+        }
+        else {
+            arr = propertyArray(value);
+            arr = objectHelper.filter(arr, function (nameValue) {
+                return isDefined(nameValue.value);
+            });
+            arr = objectHelper.map(arr, function (nameValue) {
+                return operator.encode(nameValue.name) + '=' + operator.encode(nameValue.value);
+            });
+            result += objectHelper.join(arr, operator.separator);
+        }
+        return result;
+    }
+
+
     VariableExpression.prototype.expand = function (variables) {
         var
-            result = '',
+            expanded = [],
             index,
             varspec,
             value,
             valueIsArr,
-            isFirstVarspec = true,
+            oneExploded = false,
             operator = this.operator;
-
-        // callback to be used within array.reduce
-        function reduceUnexploded (result, currentValue, currentKey) {
-            if (isDefined(currentValue)) {
-                if (result.length > 0) {
-                    result += ',';
-                }
-                if (!valueIsArr) {
-                    result += operator.encode(currentKey) + ',';
-                }
-                result += operator.encode(currentValue);
-            }
-            return result;
-        }
-
-        function reduceNamedExploded (result, currentValue, currentKey) {
-            if (isDefined(currentValue)) {
-                if (result.length > 0) {
-                    result += operator.separator;
-                }
-                result += (valueIsArr) ? encodingHelper.encodeLiteral(varspec.varname) : operator.encode(currentKey);
-                result += '=' + operator.encode(currentValue);
-            }
-            return result;
-        }
-
-        function reduceUnnamedExploded (result, currentValue, currentKey) {
-            if (isDefined(currentValue)) {
-                if (result.length > 0) {
-                    result += operator.separator;
-                }
-                if (!valueIsArr) {
-                    result += operator.encode(currentKey) + '=';
-                }
-                result += operator.encode(currentValue);
-            }
-            return result;
-        }
 
         // expand each varspec and join with operator's separator
         for (index = 0; index < this.varspecs.length; index += 1) {
             varspec = this.varspecs[index];
             value = variables[varspec.varname];
-            if (!isDefined(value)) {
-                 continue;
+            // if (!isDefined(value)) {
+            // if (variables.hasOwnProperty(varspec.name)) {
+            if (value === null || value === undefined) {
+                continue;
             }
-            if (isFirstVarspec) {
-                result += operator.first;
-                isFirstVarspec = false;
-            }
-            else {
-                result += operator.separator;
+            if (varspec.exploded) {
+                oneExploded = true;
             }
             valueIsArr = objectHelper.isArray(value);
             if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
-                value = value.toString();
-                if (operator.named) {
-                    result += encodingHelper.encodeLiteral(varspec.varname);
-                    if (value === '') {
-                        result += operator.ifEmpty;
-                        continue;
-                    }
-                    result += '=';
-                }
-                if (varspec.maxLength !== null) {
-                    value = value.substr(0, varspec.maxLength);
-                }
-                result += operator.encode(value);
+                expanded.push(expandSimpleValue(varspec, operator, value));
             }
-            else if (varspec.maxLength) {
+            else if (varspec.maxLength && isDefined(value)) {
                 // 2.4.1 of the spec says: "Prefix modifiers are not applicable to variables that have composite values."
                 throw new Error('Prefix modifiers are not applicable to variables that have composite values. You tried to expand ' + this + " with " + prettyPrint(value));
             }
             else if (!varspec.exploded) {
+                if (operator.named || !isEmpty(value)) {
+                    expanded.push(expandNotExploded(varspec, operator, value));
+                }
+            }
+            else if (isDefined(value)) {
                 if (operator.named) {
-                    result += encodingHelper.encodeLiteral(varspec.varname);
-                    if (!isDefined(value)) {
-                        result += operator.ifEmpty;
-                        continue;
-                    }
-                    result += '=';
+                    expanded.push(expandExplodedNamed(varspec, operator, value));
                 }
-                result += objectHelper.reduce(value, reduceUnexploded, '');
-            }
-            else {
-                // exploded and not string
-                result += objectHelper.reduce(value, operator.named ? reduceNamedExploded : reduceUnnamedExploded, '');
+                else {
+                    expanded.push(expandExplodedUnnamed(operator, value));
+                }
             }
         }
 
-        if (isFirstVarspec) {
-            // so no varspecs produced output.
-            var oneExploded = false;
-            for (index = 0; index < this.varspecs.length; index += 1) {
-                if (this.varspecs[index].exploded) {
-                    oneExploded = true;
-                    break;
-                }
-            }
-            if (operator.named && !oneExploded) {
-                result += operator.symbol;
-                result += varspec.varname + operator.ifEmpty;
-            }
+        if (expanded.length === 0) {
+            return "";
         }
-
-        return result;
+        else {
+            return operator.first + objectHelper.join(expanded, operator.separator);
+        }
     };
 
     return VariableExpression;

@@ -14,7 +14,7 @@ module.exports = (function () {
     }
 
     function loadUriTemplate () {
-        var context = {module: {}};
+        var context = {module: {}, console: console};
         sandbox(global.URI_TEMPLATE_FILE, context);
         return context.module.exports;
     }

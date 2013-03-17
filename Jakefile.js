@@ -70,7 +70,7 @@
         return all.toArray();
     }());
 
-    function closeTask (err) {
+    function closeAsyncJakeTask (err) {
         if (err) {
             fail(JSON.stringify(err, null, 4));
         }
@@ -86,7 +86,13 @@
                 callback(err && err.code !== 'ENOENT' ? err : undefined);
             });
         }
-        async.forEach([TMP_UNTESTED_UNCOMPRESSED, TMP_UNTESTED_COMPRESSED, TARGET_UNCOMPRESSED, TARGET_COMPRESSED], unlinkWhenExists, closeTask);
+        async.forEach([
+            TMP_UNTESTED_UNCOMPRESSED,
+            TMP_UNTESTED_COMPRESSED,
+            TARGET_UNCOMPRESSED,
+            TARGET_COMPRESSED],
+            unlinkWhenExists,
+            closeAsyncJakeTask);
     }, ASYNC);
 
     file(TARGET_UNCOMPRESSED, TARGET_UNCOMPRESSED_DEPENDENCIES, function () {
@@ -121,7 +127,7 @@
                 jake.logger.log('move uncompressed version to target directory');
                 fs.rename(TMP_UNTESTED_UNCOMPRESSED, TARGET_UNCOMPRESSED, callback);
             }
-        ], closeTask);
+        ], closeAsyncJakeTask);
     }, ASYNC);
 
     file(TARGET_COMPRESSED, [TARGET_UNCOMPRESSED], function () {
@@ -140,19 +146,20 @@
                 jake.logger.log('move compressed version to target ... ');
                 fs.rename(TMP_UNTESTED_COMPRESSED, TARGET_COMPRESSED, callback);
             }
-        ], closeTask);
+        ], closeAsyncJakeTask);
     }, ASYNC);
 
-    // for short test only
-    desc('unit tests (without jshint)');
+    desc('unit tests (without jshint, only a shortcut for development)');
     task('unit', [], function () {
         nodeunit.reporters['default'].run(UNIT_TESTS, NODEUNIT_OPTIONS, complete);
     }, ASYNC);
 
-    desc('build');
+    desc('build and test all artifacts');
     task('build', [TARGET_COMPRESSED], function () {
         jake.logger.log('done.');
     });
+
+    desc('default -- called, if you call jake without parameters');
     task('default', ['clean', 'build']);
 
 }());

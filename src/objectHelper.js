@@ -5,34 +5,43 @@ var objectHelper = (function () {
         return Object.prototype.toString.apply(value) === '[object Array]';
     }
 
-    // performs an array.reduce for objects
-    // TODO handling if initialValue is undefined
-    function objectReduce (object, callback, initialValue) {
+    function join (arr, separator) {
         var
-            propertyName,
-            currentValue = initialValue;
-        for (propertyName in object) {
-            if (object.hasOwnProperty(propertyName)) {
-                currentValue = callback(currentValue, object[propertyName], propertyName, object);
+            result = '',
+            first = true,
+            index;
+        for (index = 0; index < arr.length; index += 1) {
+            if (first) {
+                first = false;
+            }
+            else {
+                result += separator;
+            }
+            result += arr[index];
+        }
+        return result;
+    }
+
+    function map (arr, mapper) {
+        var
+            result = [],
+            index = 0;
+        for (; index < arr.length; index += 1) {
+            result.push(mapper(arr[index]));
+        }
+        return result;
+    }
+
+    function filter (arr, predicate) {
+        var
+            result = [],
+            index = 0;
+        for (; index < arr.length; index += 1) {
+            if (predicate(arr[index])) {
+                result.push(arr[index]);
             }
         }
-        return currentValue;
-    }
-
-    // performs an array.reduce, if reduce is not present (older browser...)
-    // TODO handling if initialValue is undefined
-    function arrayReduce (array, callback, initialValue) {
-        var
-            index,
-            currentValue = initialValue;
-        for (index = 0; index < array.length; index += 1) {
-            currentValue = callback(currentValue, array[index], index, array);
-        }
-        return currentValue;
-    }
-
-    function reduce (arrayOrObject, callback, initialValue) {
-        return isArray(arrayOrObject) ? arrayReduce(arrayOrObject, callback, initialValue) : objectReduce(arrayOrObject, callback, initialValue);
+        return result;
     }
 
     function deepFreezeUsingObjectFreeze (object) {
@@ -63,7 +72,9 @@ var objectHelper = (function () {
 
     return {
         isArray: isArray,
-        reduce: reduce,
+        join: join,
+        map: map,
+        filter: filter,
         deepFreeze: deepFreeze
     };
 }());

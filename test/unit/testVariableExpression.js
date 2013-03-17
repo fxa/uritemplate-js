@@ -1,9 +1,8 @@
 module.exports = (function () {
     "use strict";
-
     var
         sandbox = require('nodeunit').utils.sandbox,
-        context = {};
+        context = {console: console};
     sandbox('src/objectHelper.js', context);
     sandbox('src/charHelper.js', context);
     sandbox('src/pctEncoder.js', context);
@@ -18,6 +17,65 @@ module.exports = (function () {
     var VariableExpression = context.VariableExpression;
 
     return {
+        'unexploded': {
+            'empty is in list': function (test) {
+                var ve = new VariableExpression("{x,empty}", operators.valueOf(''), [
+                    {varname: 'x', exploded: false, maxLength: null},
+                    {varname: 'empty', exploded: false, maxLength: null}
+                ]);
+                test.equal(ve.expand({x: 'x', empty:''}), 'x,');
+                test.done();
+            },
+            'null is not in list': function (test) {
+                var ve = new VariableExpression("{x,undef}", operators.valueOf(''), [
+                    {varname: 'x', exploded: false, maxLength: null},
+                    {varname: 'empty', exploded: false, maxLength: null}
+                ]);
+                test.equal(ve.expand({x: 'x', undef: null}), 'x');
+                test.done();
+            },
+            'when empty list and not named, the operator is not printed': function (test) {
+                var ve = new VariableExpression("{.empty_list}", operators.valueOf('.'), [
+                    {varname: 'empty_list', exploded: false, maxLength: null}
+                ]);
+                test.equal(ve.expand({empty_list: []}), '');
+                test.done();
+            },
+            'when empty list and named, the operator is printed': function (test) {
+                var ve = new VariableExpression("{?empty_list}", operators.valueOf('?'), [
+                    {varname: 'empty_list', exploded: false, maxLength: null}
+                ]);
+                test.equal(ve.expand({empty_list: []}), '?empty_list=');
+                test.done();
+            }
+        },
+        'exploded': {
+            'unnamed': {
+                'a map shows a key-val list': function (test) {
+                    var ve = new VariableExpression("{keys*}", operators.valueOf(''), [
+                        {varname: 'keys', exploded: true, maxLength: null}
+                    ]);
+                    test.equal(ve.expand({keys: {a: 'a', b: 'b', c: 'c'}}), 'a=a,b=b,c=c');
+                    test.done();
+                },
+                'a empty map prints no operator': function (test) {
+                    var ve = new VariableExpression("{.empty_map*}", operators.valueOf('.'), [
+                        {varname: 'empty_map', exploded: true, maxLength: null}
+                    ]);
+                    test.equal(ve.expand({empty_map: {}}), '');
+                    test.done();
+                }
+            },
+            'named': {
+                'a named, exploded list repeats the name': function (test) {
+                    var ve = new VariableExpression("{;count*}", operators.valueOf(';'), [
+                        {varname: 'count', exploded: true, maxLength: null}
+                    ]);
+                    test.equal(ve.expand({count: ['one', 'two', 'three']}), ';count=one;count=two;count=three');
+                    test.done();
+                }
+            }
+        },
         "there must be no separator at the end of the level3 list": function (test) {
             var ve = new VariableExpression("{+x,y}", operators.valueOf('+'), [
                 {varname: 'x', exploded: false, maxLength: null},
@@ -28,17 +86,17 @@ module.exports = (function () {
             test.done();
         },
         "empty lists with ? must show the name": function (test) {
-            var ve = new VariableExpression("{?empty}", operators.valueOf('?'), [
-                {varname: 'empty', exploded: false, maxLength: null}
+            var ve = new VariableExpression("{?empty_list}", operators.valueOf('?'), [
+                {varname: 'empty_list', exploded: false, maxLength: null}
             ]);
-            test.equal(ve.expand({empty: {}}), '?empty=');
+            test.equal(ve.expand({empty_list: {}}), '?empty_list=');
             test.done();
         },
         "exploded empty lists with ? must not show the name": function (test) {
-            var ve = new VariableExpression("{?empty*}", operators.valueOf('?'), [
-                {varname: 'empty', exploded: true, maxLength: null}
+            var ve = new VariableExpression("{?empty_list*}", operators.valueOf('?'), [
+                {varname: 'empty_list', exploded: true, maxLength: null}
             ]);
-            test.equal(ve.expand({empty: {}}), '');
+            test.equal(ve.expand({empty_list: []}), '');
             test.done();
         },
         "double encode if ?": function (test) {
@@ -61,6 +119,23 @@ module.exports = (function () {
             ]);
             test.equal(ve.expand({one: 'two'}), 't');
             test.done();
+        },
+        'query expression with 1 varname will expand to empty, if data is undef': function (test) {
+            var ve = new VariableExpression("{?a}", operators.valueOf('?'), [
+                {varname: 'a', exploded: false}
+            ]);
+            test.equal(ve.expand({}), '');
+            test.done();
+        },
+        'query expression with more than 1 varname will expand to empty, if data is undef': function (test) {
+            var ve = new VariableExpression("{?a,b,c}", operators.valueOf('?'), [
+                {varname: 'a', exploded: false},
+                {varname: 'b', exploded: false},
+                {varname: 'c', exploded: false}
+            ]);
+            test.equal(ve.expand({}), '');
+            test.done();
         }
+
     };
 }());

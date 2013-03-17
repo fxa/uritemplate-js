@@ -25,6 +25,16 @@ var encodingHelper = (function () {
         return encode(text, true);
     }
 
+    function encodeLiteralCharacter (literal, index) {
+        var chr = pctEncoder.pctCharAt(literal, index);
+        if (chr.length > 1) {
+            return chr;
+        }
+        else {
+            return rfcCharHelper.isReserved(chr) || rfcCharHelper.isUnreserved(chr) ? chr : pctEncoder.encodeCharacter(chr);
+        }
+    }
+
     function encodeLiteral (literal) {
         var
             result = '',
@@ -45,7 +55,8 @@ var encodingHelper = (function () {
     return {
         encode: encode,
         encodePassReserved: encodePassReserved,
-        encodeLiteral: encodeLiteral
+        encodeLiteral: encodeLiteral,
+        encodeLiteralCharacter: encodeLiteralCharacter
     };
 
 }());
