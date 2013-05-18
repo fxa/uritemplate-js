@@ -58,11 +58,40 @@ module.exports = (function () {
                     test.equal(ve.expand({keys: {a: 'a', b: 'b', c: 'c'}}), 'a=a,b=b,c=c');
                     test.done();
                 },
+                'a map works with numbers': function (test) {
+                    var ve = new VariableExpression("{keys*}", operators.valueOf(''), [
+                        {varname: 'keys', exploded: true, maxLength: null}
+                    ]);
+                    test.equal(ve.expand({keys: {a: 'a', two: 2}}), 'a=a,two=2');
+                    test.done();
+                },
+                'a map works with booleans': function (test) {
+                    var ve = new VariableExpression("{keys*}", operators.valueOf(''), [
+                        {varname: 'keys', exploded: true, maxLength: null}
+                    ]);
+                    test.equal(ve.expand({keys: {a: 'a', true: true}}), 'a=a,true=true');
+                    test.done();
+                },
                 'a empty map prints no operator': function (test) {
                     var ve = new VariableExpression("{.empty_map*}", operators.valueOf('.'), [
                         {varname: 'empty_map', exploded: true, maxLength: null}
                     ]);
                     test.equal(ve.expand({empty_map: {}}), '');
+                    test.done();
+                },
+                                
+                'empty elements have the name and =': function (test) {
+                    var ve = new VariableExpression("{?map*}", operators.valueOf('?'), [
+                        {varname: 'map', exploded: true, maxLength: null}
+                    ]);
+                    test.equal(ve.expand({map: {a:'a', empty: ''}}), '?a=a&empty=');
+                    test.done();
+                },
+                'empty elements have the name and no =, if the operator has no ifemp ': function (test) {
+                    var ve = new VariableExpression("{;map*}", operators.valueOf(';'), [
+                        {varname: 'map', exploded: true, maxLength: null}
+                    ]);
+                    test.equal(ve.expand({map: {a:'a', empty: ''}}), ';a=a;empty');
                     test.done();
                 }
             },

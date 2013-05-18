@@ -1,4 +1,3 @@
-/*jshint */
 /*global unescape, module, define, window, global*/
 
 /*

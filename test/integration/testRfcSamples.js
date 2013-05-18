@@ -106,7 +106,7 @@ module.exports = (function () {
         test.done();
     }
 
-    var SPEC_HOME = '../uritemplate-test';
+    var SPEC_HOME = 'uritemplate-test';
 
     return {
         'spec examples': function (test) {

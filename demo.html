@@ -16,12 +16,13 @@
                         first: "1",
                         second: 2
                     }
-                };
+                },
+                expanded = UriTemplate.parse(templateText).expand(variables);
         document.getElementById('id').innerHTML =
                 "<p>When you have a template of the form</p><p><code>var templateText = \"" + templateText
-                        + "\";</code></p><p>and params of the form </p><p><code>var variables = " + JSON.stringify(variables)
+                        + "\";</code></p><p>and params of the form </p><p><code>var variables = {query: {first: \"1\", second: 2}}"
                         + ";</code></p><p>, you can use </p><p><code>UriTemplate.parse(templateText).expand(variables); </code></p><p>to produce </p><p><code>"
-                        + UriTemplate.parse(templateText).expand(variables)
+                        + expanded
                         + "</code></p><p> Look at the source code of this page!</p>";
     }());
 </script>

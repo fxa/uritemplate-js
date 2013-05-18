@@ -53,7 +53,7 @@ var pctEncoder = (function () {
      * @return {boolean|*|*}
      */
     function isPercentDigitDigit (text, start) {
-        return text[start] === '%' && charHelper.isHexDigit(text[start + 1]) && charHelper.isHexDigit(text[start + 2]);
+        return text.charAt(start) === '%' && charHelper.isHexDigit(text.charAt(start + 1)) && charHelper.isHexDigit(text.charAt(start + 2));
     }
 
     /**
@@ -95,7 +95,7 @@ var pctEncoder = (function () {
      * @return the character or pct-string of the text at startIndex
      */
     function pctCharAt(text, startIndex) {
-        var chr = text[startIndex];
+        var chr = text.charAt(startIndex);
         if (!isPercentDigitDigit(text, startIndex)) {
             return chr;
         }

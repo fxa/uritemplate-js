@@ -1,4 +1,3 @@
-/*jshint */
 /*global unescape, module, define, window, global*/
 
 /*
@@ -32,6 +31,18 @@ var objectHelper = (function () {
         return Object.prototype.toString.apply(value) === '[object Array]';
     }
 
+    function isString (value) {
+        return Object.prototype.toString.apply(value) === '[object String]';
+    }
+    
+    function isNumber (value) {
+        return Object.prototype.toString.apply(value) === '[object Number]';
+    }
+    
+    function isBoolean (value) {
+        return Object.prototype.toString.apply(value) === '[object Boolean]';
+    }
+    
     function join (arr, separator) {
         var
             result = '',
@@ -99,6 +110,9 @@ var objectHelper = (function () {
 
     return {
         isArray: isArray,
+        isString: isString,
+        isNumber: isNumber,
+        isBoolean: isBoolean,
         join: join,
         map: map,
         filter: filter,
@@ -179,7 +193,7 @@ var pctEncoder = (function () {
      * @return {boolean|*|*}
      */
     function isPercentDigitDigit (text, start) {
-        return text[start] === '%' && charHelper.isHexDigit(text[start + 1]) && charHelper.isHexDigit(text[start + 2]);
+        return text.charAt(start) === '%' && charHelper.isHexDigit(text.charAt(start + 1)) && charHelper.isHexDigit(text.charAt(start + 2));
     }
 
     /**
@@ -221,7 +235,7 @@ var pctEncoder = (function () {
      * @return the character or pct-string of the text at startIndex
      */
     function pctCharAt(text, startIndex) {
-        var chr = text[startIndex];
+        var chr = text.charAt(startIndex);
         if (!isPercentDigitDigit(text, startIndex)) {
             return chr;
         }
@@ -609,15 +623,18 @@ var parse = (function () {
 var VariableExpression = (function () {
     // helper function if JSON is not available
     function prettyPrint (value) {
-        return JSON ? JSON.stringify(value) : value;
+        return (JSON && JSON.stringify) ? JSON.stringify(value) : value;
     }
 
     function isEmpty (value) {
         if (!isDefined(value)) {
             return true;
         }
-        if (value === '') {
-            return true;
+        if (objectHelper.isString(value)) {
+            return value === '';
+        }
+        if (objectHelper.isNumber(value) || objectHelper.isBoolean(value)) {
+            return false;
         }
         if (objectHelper.isArray(value)) {
             return value.length === 0;

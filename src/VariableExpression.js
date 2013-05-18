@@ -4,15 +4,18 @@ var VariableExpression = (function () {
     "use strict";
     // helper function if JSON is not available
     function prettyPrint (value) {
-        return JSON ? JSON.stringify(value) : value;
+        return (JSON && JSON.stringify) ? JSON.stringify(value) : value;
     }
 
     function isEmpty (value) {
         if (!isDefined(value)) {
             return true;
         }
-        if (value === '') {
-            return true;
+        if (objectHelper.isString(value)) {
+            return value === '';
+        }
+        if (objectHelper.isNumber(value) || objectHelper.isBoolean(value)) {
+            return false;
         }
         if (objectHelper.isArray(value)) {
             return value.length === 0;

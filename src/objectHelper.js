@@ -5,6 +5,18 @@ var objectHelper = (function () {
         return Object.prototype.toString.apply(value) === '[object Array]';
     }
 
+    function isString (value) {
+        return Object.prototype.toString.apply(value) === '[object String]';
+    }
+    
+    function isNumber (value) {
+        return Object.prototype.toString.apply(value) === '[object Number]';
+    }
+    
+    function isBoolean (value) {
+        return Object.prototype.toString.apply(value) === '[object Boolean]';
+    }
+    
     function join (arr, separator) {
         var
             result = '',
@@ -72,6 +84,9 @@ var objectHelper = (function () {
 
     return {
         isArray: isArray,
+        isString: isString,
+        isNumber: isNumber,
+        isBoolean: isBoolean,
         join: join,
         map: map,
         filter: filter,
