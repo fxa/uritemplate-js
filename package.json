@@ -8,7 +8,7 @@
     "template",
     "rfc6570"
   ],
-  "author": "Franz Antesberger",
+  "author": "Franz X Antesberger",
   "contributors": [],
   "dependencies": {},
   "main": "bin/uritemplate.js",
@@ -33,7 +33,7 @@
     "uritemplate-test/spec-examples-by-sections.json",
     "uritemplate-test/spec-examples.json"
   ],
-  "version": "0.3.2",
+  "version": "0.3.3",
   "readmeFilename": "README.md",
   "gitHead": "901b85201a821427dfb4591b56aea3a70d45c67c",
   "devDependencies": {

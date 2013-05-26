@@ -62,6 +62,7 @@ MIT License, see http://mit-license.org/
 
 Release Notes
 -------------
+* 0.3.3 fixed https://github.com/fxa/uritemplate-js/issues/12 Pct-Encoding-Error with chars < 0x100 (missing 0-padding). Thanks to https://github.com/pfraze!
 * 0.3.2 fixed https://github.com/fxa/uritemplate-js/issues/11 Problems with older IE versions. Thanks to anozaki!
 * 0.3.1 fixed https://github.com/fxa/uritemplate-js/issues/10 thank you, Paul-Martin!
 * 0.3.0 introduced UriTemplateError as exception, so the interface changed from string to UriTemplateError (as the rfc suggested)

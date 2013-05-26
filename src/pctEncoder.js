@@ -41,7 +41,7 @@ var pctEncoder = (function () {
             index;
         for (index = 0; index < octets.length; index += 1) {
             octet = octets.charCodeAt(index);
-            result += '%' + octet.toString(16).toUpperCase();
+            result += '%' + (octet < 0x10 ? '0' : '') + octet.toString(16).toUpperCase();
         }
         return result;
     }

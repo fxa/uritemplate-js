@@ -61,6 +61,10 @@ module.exports = (function () {
                 test.equal(pctEncoder.encodeCharacter('y'), '%79');
                 test.equal(pctEncoder.encodeCharacter('!'), '%21');
                 test.done();
+            },
+            'encoding is always padded': function (test) {
+                test.equal(pctEncoder.encodeCharacter('\n'), '%0A');
+                test.done();
             }
         }
     };
