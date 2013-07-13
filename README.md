@@ -40,13 +40,13 @@ or within a html document (see also demo.html):
 If you want to clone the git project, be aware of the submodule uritemplate-test.
 So you have to to:
 
-    git https://github.com/fxa/uritemplate-js.git
-    git submodule init
-    git submodule update
+    git clone --recursive https://github.com/fxa/uritemplate-js.git
 
+    
 Build
 -----
-jake clean build
+    npm install
+    npm test
 
 Tests
 -----

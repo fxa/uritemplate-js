@@ -12,6 +12,9 @@
   "contributors": [],
   "dependencies": {},
   "main": "bin/uritemplate.js",
+  "scripts": {
+    "test": "jake clean build"
+  },
   "licenses": [{
       "type": "MIT",
       "url": "http://www.opensource.org/licenses/mit-license.php"
@@ -20,6 +23,7 @@
     "src",
     "test",
     "bin",
+    "build",
     "Jakefile.js",
     "own-testcases.json",
     "demo.html",
@@ -33,15 +37,15 @@
     "uritemplate-test/spec-examples-by-sections.json",
     "uritemplate-test/spec-examples.json"
   ],
-  "version": "0.3.3",
+  "version": "0.3.4",
   "readmeFilename": "README.md",
   "gitHead": "901b85201a821427dfb4591b56aea3a70d45c67c",
   "devDependencies": {
-      "jshint": "*",
-      "nodeunit": "*",
-      "jake": "*",
-      "uglify-js": "*",
-      "async": "*"
+      "jshint": "latest",
+      "nodeunit": "latest",
+      "jake": "latest",
+      "uglify-js": "latest",
+      "async": "latest"
   },
   "repository": {
     "type": "git",
