@@ -1,5 +1,4 @@
 /*jshint unused: false */
-/*global */
 var charHelper = (function () {
     "use strict";
 
